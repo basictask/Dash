@@ -1,0 +1,25 @@
+digraph adv {
+    graph [dpi=300]
+    rankdir="LR"
+
+    subgraph cluster_1 {
+        label="Szerver"
+        style="filled"
+        fillcolor="lightgray"
+        
+        register [label="Regisztráció  ", shape="cds", style="filled", fillcolor="white"]
+        run [label="Futtatás", shape="cds", style="filled", fillcolor="white"]
+    }
+
+    subgraph cluster_2 {
+        style="invis"
+
+        client [label="Kliens", shape="rectangle"]
+        user [label="Felhasználó", shape="rectangle"]    
+    }
+
+    user -> client [label="Interakció"]
+    client -> run [label="\n\nKérés"]
+    run -> client [label="Válasz"]
+    register -> run [constraint="false"]
+}

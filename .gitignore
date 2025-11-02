@@ -3,6 +3,15 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+*.aux
+*.gz
+*.log
+*.nav
+*.out
+*.snm
+*.toc
+*.vrb
+
 # C extensions
 *.so
 

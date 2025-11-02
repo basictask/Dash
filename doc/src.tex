@@ -1,0 +1,2485 @@
+% Settings for the default beamer theme
+\documentclass[english, aspectratio=169]{beamer}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{adjustbox}
+\usepackage{tabularx}
+\usepackage{listings}
+\usepackage{graphicx}
+\usepackage{array}
+\usepackage{babel}
+\usepackage[ruled,vlined]{algorithm2e}
+\usepackage{blkarray}
+\SetAlgorithmName{Algoritmus}{algoritmus}{List of Algorithms}
+\setcounter{secnumdepth}{3}
+\setcounter{tocdepth}{3}
+
+\makeatletter
+
+\newcommand\makebeamertitle{\frame{\maketitle}}
+
+% (ERT) argument for the TOC
+\AtBeginDocument{%
+	\let\origtableofcontents=\tableofcontents
+	\def\tableofcontents{\@ifnextchar[{\origtableofcontents}{\gobbletableofcontents}}
+	\def\gobbletableofcontents#1{\origtableofcontents}
+}
+
+% Theme settings
+\usetheme{Frankfurt}
+\usecolortheme{default}
+\usefonttheme[onlymath]{serif}
+
+% Template settings
+\setbeamertemplate{navigation symbols}{}
+\setbeamertemplate{blocks}[rounded][shadow=false]
+\setbeamertemplate{title page}[default][colsep=-4bp, rounded=true, shadow=false]
+\makeatother
+
+% --- make top navigation circles smaller and closer together ---
+\usepackage{tikz} % needed to draw tiny circles
+
+% Control values (adjust these)
+% visual radius of the dot (change smaller -> smaller dots)
+\newcommand{\MyMiniDotRadius}{0.6ex}
+% box size reserved by beamer for each mini-frame (smaller -> closer packing)
+\setbeamersize{mini frame size=0.8ex}
+
+% Draw the mini-frame as a small filled circle
+\setbeamertemplate{mini frame}{%
+  \begin{tikzpicture}[baseline=-0.6ex]
+    \fill (\MyMiniDotRadius,0) circle[radius=\MyMiniDotRadius];
+  \end{tikzpicture}%
+}
+\makeatother
+
+% Custom color definitions
+\definecolor{lightgrey}{gray}{0.95}
+\definecolor{DarkerGreen}{RGB}{0,85,0} % Adjust the RGB values as needed
+
+% Use the newly defined color in Beamer theme elements
+\setbeamercolor{structure}{fg=DarkerGreen} % Changes basic structural elements to Darker Green
+\setbeamercolor{title in head/foot}{bg=DarkerGreen} % Changes the title in header/footer to Darker Green
+
+% Definitions for program code sections
+\lstset{
+	language=bash,
+	basicstyle=\ttfamily\footnotesize, % Monospace font
+	backgroundcolor=\color{lightgrey}, % Background color
+	frame=single, % Frame around the code
+	keywordstyle=\color{black}, % Keywords color
+	commentstyle=\color{black}, % Comments color
+	stringstyle=\color{red}, % Strings color
+	showstringspaces=false, % Do not show spaces in strings
+	breaklines=true, % Automatically break long lines
+}
+
+\lstset{
+	language=python,
+	basicstyle=\ttfamily\scriptsize, % Basic font style
+	keywordstyle=\bfseries\color{blue}, % Keywords in bold and blue
+	stringstyle=\color{red}, % Strings in red
+	commentstyle=\color{green!50!black}, % Comments in green
+	showstringspaces=false, % Do not show spaces in strings
+	numbers=left, % Line numbers on the left
+	numberstyle=\tiny\color{gray}, % Line number style
+	stepnumber=1, % Line number step
+	numbersep=5pt, % Distance of line numbers from code
+	frame=single, % Frame around the code
+	rulecolor=\color{black}, % Frame color
+	tabsize=2, % Tab size
+	breaklines=true, % Automatic line breaking
+	breakatwhitespace=false, % Break lines at whitespace
+	captionpos=b, % Caption position
+	escapeinside={\%*}{*)}, % Escape to LaTeX
+	morekeywords={self}, % Additional keywords
+    literate={á}{{\'a}}1
+    	{é}{{\'e}}1
+		{í}{{\'i}}1
+		{ó}{{\'o}}1
+		{ú}{{\'u}}1
+		{ő}{{\H{o}}}1
+		{ű}{{\H{u}}}1
+		{Á}{{\'A}}1
+		{É}{{\'E}}1
+		{Í}{{\'I}}1	
+		{Ó}{{\'O}}1	
+		{Ú}{{\'U}}1
+		{Ő}{{\H{O}}}1
+		{Ű}{{\H{U}}}1
+       	{Ö}{{\"O}}1
+		{Ü}{{\"U}}1
+		{ö}{{\"o}}1
+		{ü}{{\"u}}1
+}
+
+\begin{document}
+	% Title page
+	\section{Dash alapok}
+	\title[]{Interaktív alkalmazások Python segítségével}
+	\subtitle{Plotly, Dash}
+	\author[Kuknyó Dániel]{%
+  		\texorpdfstring{Kuknyó Dániel}{Kuknyo Daniel}\\
+		\texorpdfstring{Budapesti Gazdasági Egyetem}{Budapesti Gazdasagi Egyetem}%
+	}	
+	\date{2025. nov. 4.}
+	\makebeamertitle
+	
+	% Table of contentsX slide
+	\begin{frame}
+		\tableofcontents{}
+	\end{frame}
+	
+	% Table of contents of the current section
+	\begin{frame}
+		\tableofcontents[currentsection]
+	\end{frame}
+	
+	\begin{frame}[fragile]{Órai környezet telepítése}
+		\begin{enumerate}
+			\item Új Anaconda környezet létrehozása \texttt{dash} néven:
+			\begin{lstlisting}
+$ conda create --name dash python=3.12
+			\end{lstlisting}
+			\item Környezet aktiválása:
+			\begin{lstlisting}
+$ conda activate dash
+			\end{lstlisting}
+			\item Órai tárhely klónozása:
+			\begin{lstlisting}
+$ git clone https://github.com/basictask/Adatbanyaszat.git
+			\end{lstlisting}
+			\item Függőségek telepítése:
+			\begin{lstlisting}
+$ cd Adatbanyaszat
+$ pip install -r requirements.txt
+			\end{lstlisting}
+		\end{enumerate}
+	\end{frame}
+	
+	\begin{frame}{A Dash keretrendszer}
+		A Dash keretrendszer segítségével lehetséges interaktív, dinamikus adatalapú műszerfalakat és alkalmazásokat készíteni színtisztán Python nyelvben.\par\smallskip
+		A Dash a ~\textbf{Flask} mikrokeretrendszert használja backend szerverként, \textbf{Plotly} segítségével jelenítui meg a diagramokat és \textbf{React} komponenseket használ a felhasználói interakció kezelésére.
+		\vspace{0.4cm}
+		\begin{center}
+			\begin{tabular}{c c c c c c c}
+				\adjustbox{valign=c}{\includegraphics[height=1.5cm, keepaspectratio]{images/dash_1.png}} &
+				\adjustbox{valign=c}{+} &
+				\adjustbox{valign=c}{\includegraphics[height=1.5cm, keepaspectratio]{images/dash_2.png}} &
+				\adjustbox{valign=c}{+} &
+				\adjustbox{valign=c}{\includegraphics[height=1.5cm, keepaspectratio]{images/dash_3.png}} &
+				\adjustbox{valign=c}{=} &
+				\adjustbox{valign=c}{\includegraphics[height=1cm, keepaspectratio]{images/dash_4.png}} \\
+			\end{tabular}
+		\end{center}
+	\end{frame}
+	
+	\begin{frame}[fragile]{A Dash könyvtár komponensei}
+		\only<1>{
+			\begin{block}{Dash}
+				Ez a fő csomag, amely bármely alkalmazás gerincét biztosítja a \texttt{dash.Dash} objektumon keresztül.\par\smallskip
+				Emellett néhány más eszközt is biztosít az interaktivitás és kivételek kezeléséhez, amelyekről később fogunk beszélni, amikor építjük az alkalmazásunkat.
+		\end{block}}
+		\only<2>{
+			\begin{block}{Dash Core Components}
+				Egy csomag, amely interaktív komponensek készletét biztosítja, amelyeket a felhasználók manipulálhatnak.\par\smallskip
+				Legördülő menük, dátumválasztók, csúszkák és sok más komponens is megtalálható ebben a csomagban.
+		\end{block}}
+		\only<3>{
+			\begin{block}{Dash HTML Components}
+				Ez a csomag az összes elérhető HTML címkét Python osztályként biztosítja. Egyszerűen átalakítja a Pythont HTML-re.\par\smallskip
+				Például, Pythonban a \texttt{dash\_html\_components.H1('Hello, World')} kód átalakul \texttt{<h1>Hello, World</h1>} HTML kóddá.
+		\end{block}}
+		\only<4>{
+			\begin{block}{Dash Bootstrap Components}
+				Ez egy harmadik féltől származó csomag, amely Bootstrap funkcionalitást ad a Dash-hez. Ez a csomag és annak komponensei számos elrendezéssel és vizuális jelekkel kapcsolatos lehetőséget kezelnek.\par\smallskip
+				Az elemek egymás mellé vagy egymás fölé helyezése, méretük meghatározása a böngésző képernyőmérete alapján, valamint kódolt színek készletének biztosítása a jobb kommunikáció érdekében a felhasználókkal.
+		\end{block}}
+	\end{frame}
+	
+	\begin{frame}[fragile]{Egy Dash alkalmazás struktúrája}
+		\begin{columns}
+			\begin{column}{.5\textwidth}
+				\begin{itemize}
+					\item Importálások:
+					\begin{lstlisting}
+import dash
+import dash_html_components as html
+import dash_core_components as dcc
+					\end{lstlisting}
+					\item Elrendezés:
+					\begin{lstlisting}
+app.layout = html.Div([
+	dcc.Dropdown()
+	dcc.Graph()
+	...	
+])
+					\end{lstlisting}
+				\end{itemize}
+			\end{column}
+			\begin{column}{.5\textwidth}
+				\begin{itemize}
+					\item Visszahívási függvények:
+					\begin{lstlisting}
+@app.callback()
+...
+@app.callback()
+...
+					\end{lstlisting}
+					\item Alkalmazás példányosítása:
+					\begin{lstlisting}
+app = dash.Dash(__name__)
+					\end{lstlisting}
+					\item Alkalmazás futtatása:
+					\begin{lstlisting}
+if __name__ == '__main__':
+	app.run_server()
+					\end{lstlisting}
+				\end{itemize}
+			\end{column}
+		\end{columns}
+	\end{frame}
+	
+	\begin{frame}[fragile]{Egy kezdeti alkalmazás}
+		\begin{enumerate}
+			\item Egy új, \texttt{app.py} fájlban a következő csomagok importálásával:
+			\begin{lstlisting}
+import dash
+import dash_core_components as dcc
+			\end{lstlisting}
+			\item Alkalmazás példányosítása:
+			\begin{lstlisting}
+app = dash.Dash(__name__)
+			\end{lstlisting}
+			\item Alkalmazás elrendezésének létrehozása:
+			\begin{lstlisting}
+app.layout = html.Div([
+	html.H1('Hello, World!')
+])
+			\end{lstlisting}
+			\item Futtatás:
+			\begin{lstlisting}
+if __name__ == '__main__':
+	app.run_server(debug=True)
+			\end{lstlisting}
+		\end{enumerate}
+	\end{frame}
+	
+	\begin{frame}[fragile]{Az alkalmazás futtatása (\texttt{app\_v1\_1.py})}
+		\begin{columns}
+			\begin{column}{.5\textwidth}
+				A Python értelmező segítségével a megfelelő könyvtárban állva az \texttt{app\_v1\_1.py} fájl futtatásával az eredmény a következő:
+				\begin{lstlisting}[language=python]
+(dash) daniel@neptune:~/Documents/BGE/Adatbanyaszat/2_dash/code$ python app_v1_1.py
+Dash is running on http://127.0.0.1:8050/
+
+* Serving Flask app 'app_v1_1'
+* Debug mode: on
+				\end{lstlisting}
+			\end{column}
+			\begin{column}{.5\textwidth}
+				A böngészőben a \texttt{127.0.0.1:8050} címre navigálva a következő eredmény látható:
+				\begin{center}
+					\includegraphics[width=5cm, height=5cm, keepaspectratio]{images/dash_5.png}
+				\end{center}
+			\end{column}
+		\end{columns}
+	\end{frame}
+	
+	\begin{frame}[fragile]{Komponensek hozzáadása az alkalmazáshoz}
+		Komponensek hozzáadása az alkalmazás elrendezésének szerkesztésével érhető el (\texttt{app.layout}). Ez meglehetősen egyszerű, csak a legfelső szintű \texttt{html.Div} komponens \texttt{children} attribútumához kell hozzáfűzni a megfelelő elemeket.\par\smallskip
+		\begin{lstlisting}[language=python]
+html.Div(children=[component_1, component_2, component_3, ...])
+		\end{lstlisting}
+		\par\smallskip
+		\begin{block}{\texttt{Div}}
+			A \textbf{\texttt{Div}} a HTML-ben egy blokk szintű elem, amely képes egy dokumentum különböző komponenseit csoportosítani. A \texttt{Div} nem rendelkezik semmilyen alapértelmezett stílussal vagy viselkedéssel.
+		\end{block}
+	\end{frame}
+	
+	\begin{frame}[fragile]{HTML komponensek hozzáadása}
+		\begin{block}{\texttt{children}}
+			Ez az első, és a fő konténere a komponenseknek. Paraméterül kaphatja elemek listáját vagy egyetlen elemet is.
+		\end{block}
+		\begin{block}{\texttt{className}}
+			Ez megegyezik a HTML \texttt{class} attribútumával.
+		\end{block}
+		\begin{block}{\texttt{id}}
+			A komponens azonosítója. Az interaktivitás megvalósításában van kulcsfontosságú szerepe
+		\end{block}
+		\begin{block}{\texttt{style}}
+			Ez megfelel az azonos nevű HTML attribútumnak azzal a különbséggel, hogy camelCase stílust használ a változók elnevezésére.
+		\end{block}
+	\end{frame}
+	
+	\begin{frame}{A Dash alkalmazás HTML komponensekkel (\texttt{app\_v1\_2.py})}
+		\begin{center}
+			\includegraphics[width=10cm, height=6cm, keepaspectratio]{images/dash_6.png}
+		\end{center}
+	\end{frame}
+	
+	\begin{frame}[fragile]{Témák}
+		Egy Dash alkalmazás témájának megváltoztatása rendkívül egyszerű: a Dash objektum létrehozásakor kell egy új téma argumentumot bevinni a konstruktor függvénybe.\par\medskip
+		\begin{lstlisting}[language=python]
+import dash_bootstrap_components as dbc
+...
+app = dash.Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP])
+...
+		\end{lstlisting}
+	\end{frame}
+	
+	\begin{frame}{Témák az előző alkalmazásban (\texttt{app\_v1\_3.py})}
+		\begin{columns}
+			\begin{column}{.5\textwidth}
+				\begin{center}
+					\includegraphics[width=7cm, height=7cm, keepaspectratio]{images/dash_7.png}
+				\end{center}
+			\end{column}
+			\begin{column}{.5\textwidth}
+				\begin{center}
+					\includegraphics[width=7cm, height=7cm, keepaspectratio]{images/dash_8.png}
+				\end{center}
+			\end{column}
+		\end{columns}
+	\end{frame}
+	
+	\begin{frame}[fragile]{A rács rendszer}
+		\begin{columns}
+			\begin{column}{.5\textwidth}
+				A Bootstrap segítségével lehetséges oszlopokat definiálni, ami egy független képernyőként viselkedik, egymás fölött megjelenítve az elemeket.\par\medskip
+				A rács rendszer 12 oszlopra bontja a képernyőt, és egy komponens szélessége oszlopok számában adható meg. 
+			\end{column}
+			\begin{column}{.6\textwidth}
+				\begin{center}
+					\includegraphics[width=7cm, keepaspectratio]{images/dash_9.png}
+				\end{center}
+			\end{column}
+		\end{columns}
+		\vspace{0.2cm}
+		\begin{lstlisting}[language=python]
+import dash_boostrap_components as dbc
+dbc.Col(children=[child1, child2, ...])
+		\end{lstlisting}
+	\end{frame}
+	
+	\begin{frame}[fragile]{Rácsok dinamikus képernyő méreten}
+		\begin{columns}
+			\begin{column}{.4\textwidth}
+				Vannak olyan esetek, amikor nem kívánatos az elemek méretezése a képernyővel együtt. Amikor a képernyő kisebb lesz, némelyik komponenseknek jó, ha kiterjednek méretükben.\par\smallskip
+				Öt különböző méretet lehet definiálni: \texttt{xs} (extra-small), \texttt{md} (medium), \texttt{lg} (large), \texttt{xl} (extra-large).
+			\end{column}
+			\begin{column}{.6\textwidth}
+				\begin{center}
+					\includegraphics[width=7cm, keepaspectratio]{images/dash_10.png}
+				\end{center}
+			\end{column}
+		\end{columns}
+		\vspace{0.2cm}
+		\begin{center}
+			\begin{lstlisting}[language=python]
+import dash_boostrap_components as dbc
+dbc.Col(children=[child1, child2, ...], lg=6, md=12)
+			\end{lstlisting}
+		\end{center}
+	\end{frame}
+	
+	\begin{frame}[fragile]{Bootstrap komponensek hozzáadása az alkalmazáshoz (\texttt{app\_v1\_4.py})}
+		\begin{columns}
+			\begin{column}{.5\textwidth}
+				Az alkalmazás következő verziójában két új komponens kerül hozzáadásra, a \texttt{Tabs} és \texttt{Tab}. Ezek szorosan kapcsolódnak egymáshoz. A \texttt{Tabs} a \texttt{Tab} konténere.\par\smallskip
+				Ennek eredménye egy informatívabb és jobban elrendezett alkalmazás. 
+			\end{column}
+			\begin{column}{.5\textwidth}
+				\begin{center}
+					\includegraphics[width=6cm, keepaspectratio]{images/dash_11.png}
+				\end{center}
+			\end{column}
+		\end{columns}
+	\end{frame}
+	
+	\begin{frame}[fragile]{Dash alkalmazások Jupyter Notebookban}
+		Kevés programkód változtatással az alkalmazás Jupyter Notebook környezetben is futtathatóvá válik. Ezt a \texttt{jupyter\_dash} csomag teszi lehetővé.\par\smallskip
+		A használatához a Dash helyett a JupyterDash csomagot kell importálni, és ennek mentén kell példányosítani az alkalmazást:
+		\begin{lstlisting}[language=python]
+from jupyter_dash import JupyterDash
+app = JupyterDash(__name__)
+		\end{lstlisting}
+		A JupyterDash három módot biztosít az alkalmazás futtatására:
+		\begin{itemize}
+			\item \texttt{external}: Külön böngésző ablakban
+			\item \texttt{inline}: A kód output helyen a notebookban
+			\item \texttt{jupyterlab}: Külön böngészőfülben (csak JupyterLab szerveren)
+		\end{itemize}
+	\end{frame}
+	
+	\begin{frame}[fragile]{Komponensek \texttt{id} paramétere}
+		\begin{columns}
+			\begin{column}{.5\textwidth}
+				Az \texttt{id} paraméter elengedhetetlen a Dash alkalmazások interaktivitásához.\par\smallskip
+				Ez egy, a komponensekhez rendelt egyedi azonosító, amelynek segítségével az alkalmazás megkülönbözteti és kezeli a különböző vezérlőelemeket, például grafikonokat vagy szövegdobozokat.
+			\end{column}
+			\begin{column}{.5\textwidth}
+				\begin{center}
+					\includegraphics[width=4cm, height=7cm, keepaspectratio]{images/dash_12.png}
+				\end{center}
+			\end{column}
+		\end{columns}
+		\medskip
+		\begin{lstlisting}
+app.layout = html.Div([
+	dcc.Dropdown(
+		id='color_dropdown',
+		options=[{'label': x, 'value': x} for x in ['blue', 'green', 'yellow']]
+	)
+])				
+		\end{lstlisting}
+	\end{frame}
+	
+	\begin{frame}{Callback függvények}
+		\begin{columns}
+			\begin{column}{.5\textwidth}
+				A callback egy Dash alkalmazásban egy olyan függvény, amely akkor hívódik meg, amikor egy adott esemény bekövetkezik, például egy felhasználói interakció.\par\smallskip
+				Így dinamikusan frissíthetők az alkalmazás komponensei. A következők szükségesek egy callback függvényhez:
+				\begin{itemize}
+					\item \texttt{Output}: Az a komponens attribútum, amelyik meg fog változni a függvény hatására. 
+					\item \texttt{Input}: Az az alkalmazás elem vagy esemény, amelyik elindítja a függvényt.
+					\item A függvény fejléc és definíció. 
+				\end{itemize}
+			\end{column}
+			\begin{column}{.5\textwidth}
+				\begin{center}
+					\includegraphics[width=7cm, height=7cm, keepaspectratio]{images/dash_13.png}
+				\end{center}
+			\end{column}
+		\end{columns}
+	\end{frame}
+	
+	\begin{frame}[fragile]{Callback függvény implementálása}
+		\begin{columns}
+			\begin{column}{.5\textwidth}
+				A callback működés egy dekorátor segítségével valósítható meg a függvény fejléce fölött. Itt definiálni kell az \texttt{Input} és \texttt{Output} komponenseket, ilyen sorrendben.\par\smallskip
+				Egy callback függvénynek több inputja és outputja lehet.
+			\end{column}
+			\begin{column}{.5\textwidth}
+				\begin{lstlisting}[language=python]
+@app.callback(
+	Output('color_output', 'children'),
+	Input('color_dropdown', 'value')
+)
+def display_selected_color(color):
+	if color is None:	
+		color = 'nothing'
+		return 'You selected ' + color
+				\end{lstlisting}
+			\end{column}
+		\end{columns}
+	\end{frame}
+	
+	\begin{frame}[fragile]{Callback függvény implementálása az alkalmazásba (\texttt{app\_v1\_5.py})}
+		\begin{columns}
+			\begin{column}{.5\textwidth}
+				Egy callback implementálásának lépései:
+				\begin{enumerate}
+					\item Új lenyíló lista létrehozása egy adathalmazban megtalálható országok segítségével
+					\item Egy új callback függvény létrehozása amely megkapja a választott országot, leszűri az adathalmazt majd megtalálja az ország népességi adatait (az összes forrásfájl a \texttt{data} mappában található). 
+					\item Egy riport készítése a megtalált adatokról. 
+				\end{enumerate}
+			\end{column}
+			\begin{column}{.5\textwidth}
+				\begin{center}
+					\includegraphics[width=7cm, height=7cm, keepaspectratio]{images/dash_14.png}
+				\end{center}
+			\end{column}
+		\end{columns}
+	\end{frame}
+	
+	\begin{frame}{Callback függvények tulajdonságai}
+		\begin{columns}
+			\begin{column}{.5\textwidth}
+				\begin{itemize}
+					\item A visszatérés előtt szinte bármilyen műveletet elvégezhetnek, mint pl. egy gépi tanulás modell tanítása
+					\item A callback függvények harmadik attribútuma a (\texttt{State}). Az állapottal definiált objektum attribútumok nem indítják el a callback függvényt, de a futás során a függvény hozzáfér az értékükhöz.
+					\item A callback dekorátor definíciós sorrendje: \texttt{[Output, Input, State]}.
+					\item Az input és állapot sorrend a callback dekorátorban meg kell feleljen a paraméterek sorrendjének.. 
+				\end{itemize}
+			\end{column}
+			\begin{column}{.5\textwidth}
+				\includegraphics[height=7cm, width=7cm, keepaspectratio]{images/dash_15.png}
+			\end{column}
+		\end{columns}
+	\end{frame}
+	
+	\section{Diagramok}
+
+	\begin{frame}
+	\tableofcontents[currentsection]
+	\end{frame}
+
+	\begin{frame}[fragile]{\texttt{A Figure objektum}}
+		\begin{columns}
+			\begin{column}{.5\textwidth}
+				A Plotly-ban a \texttt{Figure} objektum egy magasszintű adatstruktúra, amely egyesíti a diagram adatait és elrendezését egyetlen objektumban. Olyan attribútumokat tartalmaz, mint a \texttt{data} és \texttt{layout}.
+				\vspace{0.2cm}
+				\begin{lstlisting}[language=python]
+import plotly.graph_objects as go
+
+fig = go.Figure()
+				\end{lstlisting}
+			\end{column}
+			\begin{column}{.5\textwidth}
+				\begin{center}
+					\includegraphics[width=5cm, height=5cm, keepaspectratio]{images/plots_1.png}
+				\end{center}
+			\end{column}
+		\end{columns}
+	\end{frame}
+	
+	\begin{frame}{\texttt{Figure} objektumok attribútumai}
+		\begin{columns}
+			\begin{column}{.5\textwidth}
+				\begin{block}{\texttt{data}}
+					 Ez az attribútum tartalmazza a diagramon megjelenítendő adatokat. Ez egy lista, amely különböző nyomokat (\texttt{trace}) tartalmaz.
+				\end{block}
+				\vspace{.3cm}
+				\begin{block}{\texttt{trace}}
+					Egy \texttt{trace} vagy nyom egy adatcsoportot képvisel a diagramon belül. Minden nyomnak megvan a maga típusa (pl. kör, szórás, oszlop) és különböző tulajdonságokkal rendelkezik, mint az $x$ és $y$ tengely értékei, színek, név stb...
+				\end{block}
+			\end{column}
+			\begin{column}{.5\textwidth}
+				\begin{block}{\texttt{layout}}
+					Ez az attribútum határozza meg a diagram elrendezését és stílusát. Ide tartoznak a tengelyek címkéi, a diagram címe, a háttérszínek, a margók, a legendák és egyéb vizuális elemek. A \texttt{layout} attribútum egy szótár, amely különböző kulcs-érték párokat tartalmaz.
+				\end{block}
+			\end{column}
+		\end{columns}
+	\end{frame}
+	
+	\begin{frame}[fragile]{A \texttt{data} attribútum}
+		\begin{columns}
+			\begin{column}{.6\textwidth}
+				A \texttt{Figure} objektumot a \texttt{plotly.graph\_objects} könyvtár tartalmazza. Példányosítás után az \texttt{add\_scatter()} függvény meghívásával hozzáadódik egy új nyom a vászonhoz. A nyom az $x$ és $y$ koordinátákat tartalmazza a pontdiagramhoz. 
+				\vspace*{0.3cm}
+				\begin{lstlisting}[language=python]
+import plotly.graph_objects as go
+
+fig = go.Figure()
+fig.add_scatter(x=[1, 2, 3], y=[4, 2, 3])
+fig.show()
+				\end{lstlisting}		
+			\end{column}
+			\begin{column}{.4\textwidth}
+				\begin{center}
+					\includegraphics[width=6cm, keepaspectratio]{images/plots_2.png}
+				\end{center}
+			\end{column}
+		\end{columns}
+	\end{frame}
+	
+	\begin{frame}[fragile]{A \texttt{layout} attribútum}
+		\begin{columns}
+			\begin{column}{.5\textwidth}
+				A \texttt{layout} attribútum módosítása közvetlen hozzáféréssel lehetséges. Ez egy fastruktúrájú adatszerkezet, ahol az attribútumoknak alárendelt attribútumai vannak.
+				\vspace{0.3cm}
+				\begin{lstlisting}[language=python]
+fig.layout.title = 'The Figure Title'
+fig.layout.xaxis.title = 'The X-axis title'
+fig.layout.yaxis.title = 'The Y-axis title'				
+				\end{lstlisting}
+			\end{column}
+			\begin{column}{.5\textwidth}
+				\begin{center}
+					\includegraphics[width=6cm, keepaspectratio]{images/plots_3.png}
+				\end{center}
+			\end{column}
+		\end{columns}
+	\end{frame}
+	
+	\begin{frame}{Grafikon renderelése \texttt{json} formátumba}
+		\begin{columns}
+			\begin{column}{.4\textwidth}
+				A \texttt{show()} függvény több módot is biztosít egy függvény megjelenítésére. Az egyik ilyen a \texttt{fig.show('json')}.\par\smallskip
+				Ennek segítségével meg lehet vizsgálni a diagram renderelése közben létrejövő fa struktúrát. 
+			\end{column}
+			\begin{column}{.6\textwidth}
+				\begin{center}
+					\includegraphics[width=8cm, keepaspectratio]{images/plots_4.png}
+				\end{center}
+			\end{column}
+		\end{columns}
+	\end{frame}
+	
+	\begin{frame}[fragile]{Grafikon konfigurálása}
+		\begin{columns}
+			\begin{column}{.5\textwidth}
+				A \texttt{config} paraméter egy \texttt{dict} objektumot vár el, és több tulajdonságát is képes vezérelni a diagramnak:
+				\vspace{0.3cm}
+				\begin{lstlisting}[language=python]
+fig.show(
+	config={
+		'displaylogo': False,
+		'modeBarButtonsToAdd': ['drawrect', 'drawcircle', 'eraseshape']
+	}
+)
+				\end{lstlisting}
+			\end{column}
+			\begin{column}{.5\textwidth}
+				\begin{itemize}
+					\item \texttt{displayModeBar}: A teljes menüsáv mutatása, alapértelmezése \texttt{True}
+					\item \texttt{responsive}: Változzon-e a diagram mérete a böngésző méretnek megfelelően. Alapértelmezése a \texttt{True}.
+					\item \texttt{toImageButtonOptions}: A kép letöltésének alapértelmezett formátumát adja meg. 
+					\item \texttt{modeBarButtonsToRemove}: Azon menügombok listája, amiket ne jelenítsen meg a diagram. 
+				\end{itemize}
+			\end{column}
+		\end{columns}
+	\end{frame}
+	
+	\begin{frame}[fragile]{Vezérlőkkel összekapcsolt diagramok}
+		\begin{columns}
+			\begin{column}{.5\textwidth}
+				Egy interaktív diagram létrehozása az elrendezésben:
+				\begin{lstlisting}[language=python]
+app.layout = html.Div([
+	dcc.Dropdown(
+		id='year_dropdown',
+		value='2010',
+		options=[{'label': year, 'value': str(year)} for year in range(1974, 2019)]
+	),
+	dcc.Graph(id='population_chart')
+])
+				\end{lstlisting}
+				A \texttt{Dropdown} komponensben definiálva vannak a lehetséges értékek, és a \texttt{Graph} egy egyedi \texttt{id} adattaggal van ellátva az interaktivitás miatt.
+			\end{column}
+			\begin{column}{.5\textwidth}
+				Az ehhez a diagramhoz tartozó callback függvény a legördülő menü értékét kapja meg paraméterül, az implementációjában leszűri a táblát, majd egy \texttt{Figure} objektumot térít vissza, ami felülírja a \texttt{population\_chart} \texttt{figure} attribútumát:
+				\begin{lstlisting}[language=python]
+@app.callback(
+	Output('population_chart', 'figure'),
+	Input('year_dropdown', 'value')
+)
+def plot_countries_by_population(year):
+	year_df = ...
+	fig = go.Figure()
+	...
+	return fig
+				\end{lstlisting}
+			\end{column}
+		\end{columns}
+	\end{frame}
+	
+	\begin{frame}{Alkalmazás felépítése interaktív diagrammal (\texttt{app\_v2\_1.py})}
+		\begin{columns}
+			\begin{column}{.5\textwidth}
+				\begin{enumerate}
+					\item Pandas importálása, és a szegénységi adatokat tartalmazó fájl megnyitása. 
+					\item Régiók kizárása az adatkészletből, hogy csak országok maradjanak.
+					\item Egy \texttt{DataFrame} létrehozása, amely csak az országok teljes népességét tartalmazza. 
+					\item Egy legördülő menü segítségével ki lehet választani az évet, amely leszűri az adathalmazt, hogy az abból az évből legnépesebb országokat reprezentálja.
+					\item Oszlopdiagram létrehozása, amely a legnépesebb országokat tartalmazza. 
+				\end{enumerate}
+			\end{column}
+			\begin{column}{.5\textwidth}
+				\begin{center}
+					\includegraphics[width=7cm, height=7cm, keepaspectratio]{images/plots_5.png}
+				\end{center}
+			\end{column}
+		\end{columns}
+	\end{frame}
+	
+	\begin{frame}{Dash vizuális debugger}
+		\begin{columns}
+			\begin{column}{.5\textwidth}
+				A vizuális debugger a Dash-ben egy eszköz, amely segít a fejlesztőknek nyomon követni és hibakeresni a Dash alkalmazásaikat. A vizuális debugger lehetővé teszi, hogy valós időben lássuk az alkalmazás állapotát, a komponensek közötti adatáramlást és az eseményeket:
+				\begin{itemize}
+					\item Komponensek hierarchiája
+					\item Állapot és tulajdonságok
+					\item Események és változások
+					\item Hibák és figyelmeztetések
+				\end{itemize}
+			\end{column}
+			\begin{column}{.5\textwidth}
+				\begin{center}
+					\includegraphics[width=7cm, height=6cm, keepaspectratio]{images/plots_6.png}
+				\end{center}
+			\end{column}
+		\end{columns}
+	\end{frame}
+	
+	\begin{frame}[fragile]{Diagram témák szerkesztése}
+		\begin{columns}
+			\begin{column}{.5\textwidth}
+				A diagramok témájának szerkesztése nagyon sok időt megspórolhat, és egy általános megoldást nyújt arra, hogy minden diagram témáját egyszerre lehessen változtatni.\par\smallskip
+				Ez a \texttt{layout} alatt a \texttt{template} attribútum módosításával érhető el. 
+				\begin{lstlisting}[language=python]
+fig.layout.template = template_name
+				\end{lstlisting}	
+			\end{column}
+			\begin{column}{.5\textwidth}
+				\begin{center}
+					\includegraphics[width=7cm, height=7cm, keepaspectratio]{images/plots_7.png}
+				\end{center}
+			\end{column}
+		\end{columns}
+	\end{frame}
+	
+	\begin{frame}[fragile]{Példa adathalmaz definiálása}
+		A következőkben a következő egyszerű adattáblával készült diagramok lesznek láthatók:
+		\begin{columns}
+			\begin{column}{.4\textwidth}
+				\begin{lstlisting}[language=python]
+df = pd.DataFrame({
+	'numbers': [1, 2, 3, 4, 5, 6, 7, 8],
+	'colors': ['blue', 'green', 'orange', 'yellow', 'black', 'gray', 'pink', 'white'],
+	'floats': [1.1, 1.2, 1.3, 2.4, 2.1, 5.6, 6.2, 5.3],
+	'shapes': ['rectangle', 'circle', 'triangle', 'rectangle', 'circle', 'triangle', 'rectangle', 'circle'],
+	'letters': list('AAABBCCC')
+})
+				\end{lstlisting}
+			\end{column}
+			\begin{column}{.6\textwidth}
+				\begin{lstlisting}[language=bash]
+   numbers  colors  floats     shapes letters
+0        1    blue     1.1  rectangle       A
+1        2   green     1.2     circle       A
+2        3  orange     1.3   triangle       A
+3        4  yellow     2.4  rectangle       B
+4        5   black     2.1     circle       B
+5        6    gray     5.6   triangle       C
+6        7    pink     6.2  rectangle       C
+7        8   white     5.3     circle       C
+				\end{lstlisting}
+			\end{column}
+		\end{columns}
+	\end{frame}
+	
+	\begin{frame}[fragile]{Pontdiagram}
+		\begin{columns}
+			\begin{column}{.5\textwidth}
+				Egy plotly express diagramnak kétféleképpen is át lehet adni az adathalmazt.\par\medskip
+				Az első esetben a \texttt{DataFrame} kerül átadásra, és az \texttt{x, y} paraméterek a \texttt{DataFrame} oszlopaira hivatkoznak:
+				\begin{lstlisting}[language=python]
+px.scatter(data_frame=df, x='numbers', y='floats')
+				\end{lstlisting}
+				A másik esetben pedig közvetlenül vannak hivatkozva az oszlopok:
+				\begin{lstlisting}[language=python]
+px.scatter(x=df['numbers'], y=df['floats'])
+				\end{lstlisting}
+			\end{column}
+			\begin{column}{.5\textwidth}
+				\includegraphics[width=7cm, height=7cm, keepaspectratio]{images/plots_8.png}
+			\end{column}
+		\end{columns}
+	\end{frame}
+	
+	\begin{frame}[fragile]{Pontdiagram kategóriákkal}
+		\begin{columns}
+			\begin{column}{.5\textwidth}
+				Ebben az esetben minden adatosztály egy külön nyomként jelenik meg. 
+				\vspace{0.3cm}
+				\begin{lstlisting}[language=python]
+px.scatter(df, x='numbers', y='floats', color='shapes', symbol='shapes')
+				\end{lstlisting}
+			\end{column}
+			\begin{column}{.5\textwidth}
+				\begin{center}
+					\includegraphics[width=7cm, height=7cm, keepaspectratio]{images/plots_9.png}
+				\end{center}
+			\end{column}
+		\end{columns}
+	\end{frame}
+	
+	\begin{frame}[fragile]{Pontdiagram jelölőkkel}
+		\begin{columns}
+			\begin{column}{.5\textwidth}
+				Minden $\left(x,y\right)$ adatpont jelölőjét lehetséges külön állítani. Ezeknek testre lehet szabni a színét, méretét:
+				\vspace{0.3cm}
+				\begin{lstlisting}
+px.scatter(df, x='numbers', y='floats', color='letters', symbol='letters', size=[35] * 8)			
+				\end{lstlisting}
+			\end{column}
+			\begin{column}{.5\textwidth}
+				\begin{center}
+					\includegraphics[width=7cm, height=7cm, keepaspectratio]{images/plots_10.png}
+				\end{center}
+			\end{column}
+		\end{columns}
+	\end{frame}
+	
+	\begin{frame}[fragile]{Rakott oszlopdiagram}
+		\begin{columns}
+			\begin{column}{.5\textwidth}
+				A rakott oszlopdiagram több oszlopdiagram együttese. Ebben az esetben is minden adatcsoport egy külön nyomként jelenik meg az adatszerkezetben. A csoportosítási változót a \texttt{color} attribútum adja meg. 
+				\vspace{0.3cm}
+				\begin{lstlisting}[language=python]
+px.bar(df, x='letters', y='floats', color='shapes')
+				\end{lstlisting}
+			\end{column}
+			\begin{column}{.5\textwidth}
+				\begin{center}
+					\includegraphics[width=7cm, height=7cm, keepaspectratio]{images/plots_11.png}
+				\end{center}
+			\end{column}
+		\end{columns}
+	\end{frame}
+	
+	\begin{frame}[fragile]{Csoportosított oszlopdiagram}
+		\begin{columns}
+			\begin{column}{.5\textwidth}
+				Csoportosítás esetén az adatcsoportok nem egymáson, hanem egymás mellett foglalnak helyet. A csoportosítás attribútuma itt is a \texttt{color}, és a csoportosítási típust a \texttt{barmode=color} adja meg. 
+				\vspace{0.3cm}
+				\begin{lstlisting}[language=python]
+px.bar(df, x='letters', y='floats', color='shapes', barmode='group')
+				\end{lstlisting}
+			\end{column}
+			\begin{column}{.5\textwidth}
+				\begin{center}
+					\includegraphics[width=7cm, height=7cm, keepaspectratio]{images/plots_12.png}
+				\end{center}			
+			\end{column}
+		\end{columns}
+	\end{frame}
+	
+	\begin{frame}{Összetett plotly express diagram létrehozása (\texttt{px\_app.py})}
+		\begin{columns}
+			\begin{column}{.5\textwidth}
+				\begin{enumerate}
+					\item Adathalmazok beolvasása, transzformációja és megfelelő formára hozása
+					\item Változók létrehozása, amik megadják a szűrési kritériumokat: \texttt{year, indicator, grouper}
+					\item Adathalmaz leszűrése a változók alapján
+					\item A \texttt{px.scatter()} meghívása egy Dash objektum \texttt{Div} komponensén
+				\end{enumerate}
+			\end{column}
+			\begin{column}{.5\textwidth}
+				\begin{center}
+					\includegraphics[width=7cm, height=7cm, keepaspectratio]{images/plots_13.png}
+				\end{center}
+			\end{column} 
+		\end{columns}
+	\end{frame}
+	
+	\begin{frame}[fragile]{Fektetett oszlopdiagram}
+		\begin{columns}
+			\begin{column}{.5\textwidth}
+				Vannak olyan esetek, amikor a tengelycímek hosszúak, ezért fontos a jó olvashatóság. Ebben az esetben a vízszintes oszlopdiagram a megfelelő választás.\par\smallskip
+				Ehhez az \texttt{x} és \texttt{y} paramétereket meg kell cserélni és az \texttt{orientation='h'} paramétert be kell állítani:
+				\begin{lstlisting}[language=python]
+fig = px.bar(
+	df, 
+	x=gini, 
+	y='Country Name', 
+	title=' - '.join([gini, str(year)]), 
+	orientation='h'
+)
+				\end{lstlisting}
+			\end{column}
+			\begin{column}{.5\textwidth}
+				\begin{center}
+					\includegraphics[width=7cm, height=7cm, keepaspectratio]{images/plots_15.png}
+				\end{center}
+			\end{column}
+		\end{columns}
+	\end{frame}
+	
+	\begin{frame}[fragile]{Dinamikus méretű oszlopdiagram}
+		\begin{columns}
+			\begin{column}{.5\textwidth}
+				Alapértelmezés szerint a plotly express diagramok maximális méretének intervalluma $\left[20.2, 65.8\right]$. Ezt manuálisan is lehet állítani, de amikor kevés rekord van a diagram eltorzulhat.\par\smallskip
+				Egy megoldás erre, ha országonként 20 pixellel nő meg a \texttt{height} paraméter.
+				\begin{lstlisting}[language=python]
+fig = px.bar(
+	df,
+	x=indicator,
+	y='Country Name',
+	title=' - '.join([gini, str(year)]),
+	height=200 + (20 * n_countries),
+	orientation='h',
+)
+				\end{lstlisting}
+			\end{column}
+			\begin{column}{.5\textwidth}
+				\begin{center}
+					\includegraphics[width=7cm, height=7cm, keepaspectratio]{images/plots_16.png}
+				\end{center}
+			\end{column}
+		\end{columns}
+	\end{frame}
+	
+	\begin{frame}{Oszlopmódok}
+		\begin{columns}
+			\begin{column}{.5\textwidth}
+				Ugyanazt az oszlopdiagramot többféleképpen is meg lehet jeleníteni. Ennek a felelőse a \texttt{barmode} paraméter.\par\medskip
+				\only<1>{
+					\begin{block}{\texttt{relative}}
+						Az oszlopok egymás mellett jelennek meg, és az értékek relatív különbségeit mutatják.
+					\end{block}
+				}
+				\only<2>{
+					\begin{block}{\texttt{group}}
+						Az oszlopok csoportosítva jelennek meg, különböző kategóriák szerint.
+					\end{block}
+				}
+				\only<3>{
+					\begin{block}{\texttt{overlay}}
+						Az oszlopok egymásra helyezve jelennek meg, átfedésben.
+					\end{block}
+				}
+				\only<4>{
+					\begin{block}{\texttt{stack}}
+						Az oszlopok egymásra rakva jelennek meg, az értékek összeadódnak.
+					\end{block}
+				}
+			\end{column}
+			\begin{column}{.5\textwidth}
+				\begin{center}
+					\includegraphics<1>[width=7cm, height=7cm, keepaspectratio]{images/plots_19.png}
+					\includegraphics<2>[width=7cm, height=7cm, keepaspectratio]{images/plots_20.png}
+					\includegraphics<3>[width=7cm, height=7cm, keepaspectratio]{images/plots_21.png}
+					\includegraphics<4>[width=7cm, height=7cm, keepaspectratio]{images/plots_22.png}
+				\end{center}
+			\end{column}
+		\end{columns}
+	\end{frame}
+	
+	\begin{frame}[fragile]{Diagramok szétbontása felületekre}
+		\begin{columns}
+			\begin{column}{.5\textwidth}
+				Szétbontással új dimenziókat lehet felvenni egy műszerfalra. Ki lehet választani egy jellemzőt, ami mentén a szeletelés történik. A megfelelő paraméterek erre a plotly express könyvtárban a \texttt{facet\_col} és \texttt{facet\_row} attól függően, hogy új oszlop vagy sor fog létrejönni a diagramban. \par\medskip
+				\begin{lstlisting}[language=python]
+fig = px.bar(df, x='year', y=gini, facet_row='Country Name')				
+				\end{lstlisting}
+			\end{column}
+			\begin{column}{.5\textwidth}
+				\begin{center}
+					\includegraphics[width=7cm, height=7cm, keepaspectratio]{images/plots_23.png}
+				\end{center}
+			\end{column}
+		\end{columns}
+	\end{frame}
+	
+	\begin{frame}[fragile]{Legnépesebb országok régiónként}
+		\begin{columns}
+			\begin{column}{.5\textwidth}
+				Egy legördülő listán ki lehet választani az évek közül a megfelelőt, ez elindít egy callback függvényt, ami egy \texttt{dcc.Graph} objektun \texttt{figure} adattagját frissíti egy plotly express diagrammal.
+				\begin{lstlisting}[language=python]
+dcc.Dropdown(
+	id='year_dropdown',
+	value='2010',
+	options=[{'label': year, 'value': str(year)} for year in range(1974, 2019)]
+),
+...
+dcc.Graph(id='population_chart'),				
+				\end{lstlisting}
+			\end{column}
+			\begin{column}{.5\textwidth}
+				\begin{lstlisting}[language=python]
+@param_app.callback(
+	Output('population_chart', 'figure'),
+	Input('year_dropdown', 'value')
+)
+def plot_countries_by_population(year):
+	fig = go.Figure()
+	year_df = population_df[['Country Name', year]].sort_values(year, ascending=False)[:20]
+	fig.add_bar(x=year_df['Country Name'], y=year_df[year])
+	fig.layout.title = f'A húsz legnépesebb ország - {year}'
+	return fig				
+				\end{lstlisting}
+			\end{column}
+		\end{columns}
+	\end{frame}
+	
+	\begin{frame}[fragile]{Többváltozós legördülő lista}
+		\begin{columns}
+			\begin{column}{.5\textwidth}
+				A \texttt{Dropdown} komponensnek van egy extra, opcionális paramétere, a \texttt{multi}, ami egy logikai változót vár el értékként, és ha be van kapcsolva lehetővé teszi több érték kiválasztását egy változóból.\par\medskip
+				\begin{lstlisting}[language=python]
+dcc.Dropdown(
+	id='gini_country_dropdown', 
+	multi=True,
+	options=[{'label': country, 'value': country} for country in gini_df['Country Name'].unique()]
+),				
+				\end{lstlisting}
+			\end{column}
+			\begin{column}{.5\textwidth}
+				\begin{center}
+					\includegraphics[width=7cm, height=7cm, keepaspectratio]{images/plots_24.png}
+				\end{center}			
+			\end{column}
+		\end{columns}
+	\end{frame}
+	
+	\begin{frame}[fragile]{Helykitöltő szöveg legördülő listákhoz}
+		Egy további opcionális paramétere a \texttt{Dropdown} objektumoknak a \texttt{placeholder}, amivel lehetséges helykitöltő szöveget hozzáadni a legördülő listához.\par\smallskip
+		Ezzel megjelenít egy szöveget, ami azelőtt látszik, hogy a felhasználó belekattintana dobozba.
+		\begin{columns}
+			\begin{column}{.5\textwidth}
+				\begin{lstlisting}[language=python]
+dcc.Dropdown(
+	id='gini_country_dropdown',
+	placeholder='Válasszon egy vagy több országot',
+	multi=True,
+	options=[{'label': country, 'value': country} for country in gini_df['Country Name'].unique()]
+),				
+				\end{lstlisting}
+			\end{column}
+			\begin{column}{.5\textwidth}
+				\begin{center}
+					\includegraphics[width=7cm, height=7cm, keepaspectratio]{images/plots_26.png}
+				\end{center}
+			\end{column}
+		\end{columns}
+	\end{frame}
+	
+	\begin{frame}[fragile]{Elrendezés komponensek újrafelhasználása}
+		\begin{columns}
+			\begin{column}{.5\textwidth}
+				Egy python szkriptben inicializált \texttt{layout} változót lehetséges egy másik szkriptben importálni.\par\medskip
+				Ebben az esetben a \texttt{layout.children} komponenst egy listaként kell átvenni, és hozzá kell fűzni az aktuális szkript elrendezés definíciójához.
+			\end{column}
+			\begin{column}{.5\textwidth}
+				\begin{lstlisting}[language=python]
+app.layout = html.Div([
+	*app_v2_3.app.layout.children[:-1],
+	dbc.Row([
+		...	
+	]),
+	app_v2_3.app.layout.children[-1]
+])				
+				\end{lstlisting}			
+			\end{column}
+		\end{columns}
+	\end{frame}
+	
+	\begin{frame}[fragile]{A lista kicsomagolás operátor}
+		\begin{columns}
+			\begin{column}{.5\textwidth}
+				Az előző példában a listára értelmezett \texttt{*} operátor a python nyelvben arra használható, hogy egy lista értékeit kicsomagolja valamilyen argumentumban vagy másik adatstruktúrában.
+				\begin{lstlisting}[language=python]
+In [1]: a = [1, 2, 3]
+In [2]: b = 5
+In [3]: [*a, 4, b]
+Out[3]: [1, 2, 3, 4, 5]
+				\end{lstlisting}
+			\end{column}
+			\begin{column}{.5\textwidth}
+				Ez a funkcionalitás akkor használatos, ha arra van szükség, hogy egy függvény tetszőleges számú paramétert legyen képes átvenni:
+				\begin{lstlisting}[language=python]
+def f(*argv):
+	...
+	
+f('Hello', 'World')
+				\end{lstlisting}
+				Abban az esetben ha nevesített argumentumokra van szűkség a \texttt{**} operátor teszi ezt lehetővé:
+				\begin{lstlisting}[language=python]
+def f(**kwargs):
+	...
+
+f(school='bge', spec='data')
+				\end{lstlisting}
+			\end{column}
+		\end{columns}
+	\end{frame}
+	
+	\begin{frame}[fragile]{Callback függvények újrafelhasználása}
+		\begin{columns}
+			\begin{column}{.5\textwidth}
+				Callback függvényeket is lehetséges felhasználni szkriptek között, viszont ennek az eljárása eltér az elrendezés komponensek újrafelhasználásának módjától.\par\smallskip
+				Ahhoz, hogy egy alkalmazásba be lehessen importálni egy másik alkalmazás callback függvényeit, a definíció helyén egy külső függvénybe kell ezeket beágyazni, majd ezt a függvényt később meghívni egy paraméterezett \texttt{Dash} alkalmazás objektummal.
+			\end{column}
+			\begin{column}{.5\textwidth}
+				\begin{lstlisting}[language=python]
+def register_callbacks(param_app):
+	@param_app.callback(
+		...
+	)
+	def callback1(...):
+		...
+	
+	@param_app.callback(
+		...
+	)
+	def callback2(...):
+		...				
+				\end{lstlisting}
+				A meghívás egy másik alkalmazásból:
+				\begin{lstlisting}[language=python]
+import app_v2_1
+
+app = dash.Dash(__name___)
+...
+app_v2_1.register_callbacks(app)
+				\end{lstlisting}
+			\end{column}
+		\end{columns}
+	\end{frame}
+
+	\section{Pontdiagramok}
+	
+	\begin{frame}
+	\tableofcontents[currentsection]
+	\end{frame}
+
+	\begin{frame}{Alapvető pontdiagramok}
+		\begin{columns}
+			\begin{column}{.5\textwidth}
+				A plotly könyvtárban a pontdiagramokat a \texttt{graph\_objects} valósítja meg. Az alapvető jelölőtípusok:
+				\begin{itemize}
+					\item \texttt{markers}: Csak jelölők
+					\item \texttt{lines}: Csak vonalak
+					\item \texttt{text}: Csak szöveget
+					\item \texttt{markers+lines}: Jelölők és vonalak
+					\item \texttt{markers+text}: Jelölők és szöveg
+					\item \texttt{lines+text}: Vonalak és szöveg
+					\item \texttt{markers+lines+text}: Jelölők, vonalak és szöveg
+				\end{itemize}
+			\end{column}
+			\begin{column}{.5\textwidth}
+				\begin{center}
+					\includegraphics<1>[width=7cm, height=7cm, keepaspectratio]{images/scatter_1.png}
+					\includegraphics<2>[width=7cm, height=7cm, keepaspectratio]{images/scatter_2.png}
+					\includegraphics<3>[width=7cm, height=7cm, keepaspectratio]{images/scatter_3.png}
+					\includegraphics<4>[width=7cm, height=7cm, keepaspectratio]{images/scatter_4.png}
+					\includegraphics<5>[width=7cm, height=7cm, keepaspectratio]{images/scatter_5.png}
+					\includegraphics<6>[width=7cm, height=7cm, keepaspectratio]{images/scatter_6.png}
+					\includegraphics<7>[width=7cm, height=7cm, keepaspectratio]{images/scatter_7.png}
+				\end{center}
+			\end{column}
+		\end{columns}
+	\end{frame}
+	
+	\begin{frame}[fragile]{Több nyom egy diagramon}
+		\begin{columns}
+			\begin{column}{.5\textwidth}
+				Ahhoz, hogy egyszerre több nyomvonal szerepeljen egy diagramon, ezeket egymás után kell hozzáadni a \texttt{Figure} objektumhoz.\par\medskip
+				\begin{lstlisting}[language=python]
+for country in countries:
+	fig.add_scatter(x=df_country['year'], y=df_country[perc_pov_19], name=country, mode='markers+lines')
+				\end{lstlisting}
+			\end{column}
+			\begin{column}{.5\textwidth}
+				\begin{center}
+					\includegraphics[width=7cm, height=7cm, keepaspectratio]{images/scatter_8.png}
+				\end{center}
+			\end{column}
+		\end{columns}
+	\end{frame}
+	
+	\begin{frame}[fragile]{Alapértelmezett színezés folytonos változóval}
+		\begin{columns}
+			\begin{column}{.5\textwidth}
+				A színezést a \texttt{px.scatter()} függvény hívásakor a \texttt{color} paraméterének állításával lehet elérni. Folytonos változó esetén a vászon jobb oldalán egy folytonos színskála fog megjelenni.\par\medskip
+				\begin{lstlisting}[language=python]
+fig = px.scatter(df, x=indicator, y='Country Name', color='Population, total')				
+				\end{lstlisting}
+			\end{column}
+			\begin{column}{.5\textwidth}
+				\begin{center}
+					\includegraphics[width=7cm, height=7cm, keepaspectratio]{images/scatter_9.png}
+				\end{center}
+			\end{column}
+		\end{columns}
+	\end{frame}
+	
+	\begin{frame}[fragile]{Személyre szabott színezés folytonos változóval}
+		\begin{columns}
+			\begin{column}{.5\textwidth}
+				A színskála megadható a \texttt{color\_continuous\_scale} paraméter állításával. A színskálák listája \href{https://plotly.com/python/builtin-colorscales/}{ezen a linken} érhető el.\par\medskip
+				\begin{lstlisting}[language=python]
+fig = px.scatter(df, x=indicator, y='Country Name', color='Population, total', color_continuous_scale='RdBu')				
+				\end{lstlisting}
+			\end{column}
+			\begin{column}{.5\textwidth}
+				\begin{center}
+					\includegraphics[width=7cm, height=7cm, keepaspectratio]{images/scatter_10.png}
+				\end{center}
+			\end{column}
+		\end{columns}
+	\end{frame}
+	
+	\begin{frame}[fragile]{Színek diszkrét változókkal}
+		\begin{columns}
+			\begin{column}{.5\textwidth}
+				Ha a diagramon ábrázolt függő változó diszkrét, nem egy színskála jön létre, hanem a diagram jobb oldalán a lehetséges kategóriák lesznek felsorolva, amelyek közül kattintással lehet kiválasztani a megjelenítendő nyomot.\par\medskip
+				\begin{lstlisting}[language=python]
+fig = px.scatter(
+	df,
+	x=indicator,
+	y='Country Name',
+	color='Income Group',
+	...
+)				
+				\end{lstlisting}
+			\end{column}
+			\begin{column}{.5\textwidth}
+				\begin{center}
+					\includegraphics[width=7cm, height=7cm, keepaspectratio]{images/scatter_11.png}
+				\end{center}
+			\end{column}
+		\end{columns}
+	\end{frame}
+	
+	\begin{frame}[fragile]{Egyéni színek diszkrét változókkal}
+		\begin{columns}
+			\begin{column}{.5\textwidth}
+				A \texttt{color\_discrete\_sequence} paraméter egy listát fogad, ahol minden elem egy színnevet tartalmazó szöveges érték.\par\medskip
+				\begin{lstlisting}[language=python]
+fig = px.scatter(
+	df,
+	x=indicator,
+	y='Country Name',
+	color='Income Group',
+	symbol='Income Group',
+	color_discrete_sequence=['chocolate', 'teal', 'olive', 'black'],
+	...
+)
+				\end{lstlisting}
+			\end{column}
+			\begin{column}{.5\textwidth}
+				\begin{center}
+					\includegraphics[width=7cm, height=7cm, keepaspectratio]{images/scatter_12.png}
+				\end{center}
+			\end{column}
+		\end{columns}
+	\end{frame}
+	
+	\begin{frame}{Kiugró értékek a gyakorlatban}
+		\begin{columns}
+			\begin{column}{.5\textwidth}
+				A következő példában egyetlen outlier érték, Kína a maga 1.4 milliárd lélekszámával az összes többi országot egy kis területbe szorítja a diagram bal oldalán.\par\medskip
+				A következő fejezet azzal fog foglalkozni, hogy hogyan lehet ilyen jelenségeket kezelni.
+			\end{column}
+			\begin{column}{.5\textwidth}
+				\begin{center}
+					\includegraphics[width=7cm, height=7cm, keepaspectratio]{images/scatter_13.png}
+				\end{center}
+			\end{column}
+		\end{columns}
+	\end{frame}
+	
+	\begin{frame}[fragile]{Markerek áttetszőségének és méretének állítása}
+		\begin{columns}
+			\begin{column}{.5\textwidth}
+				Az \texttt{opacity} paraméter egy $\left[0,1\right]$ intervallumba eső tizedes törtet vár el paraméterül. A 0 érték egy teljesen áttetsző, az 1 pedig egy teljesen átlátszatlan markert fog eredményezni.\par\medskip
+				Mivel a markerek nagyon kicsik, a \texttt{size} paraméter növelésével jobban láthatóvá lehet őket tenni.
+			\end{column}
+			\begin{column}{.5\textwidth}
+				\begin{center}
+					\includegraphics[width=7cm, height=7cm, keepaspectratio]{images/scatter_14.png}
+				\end{center}
+			\end{column}
+		\end{columns}
+	\end{frame}
+	
+	\begin{frame}{Logaritmikus skála használata}
+		\begin{columns}
+			\begin{column}{.5\textwidth}
+				A logaritmikus skála olyan skála, amelyen az értékek nem egyenletesen, hanem logaritmikus arányban vannak elosztva. Például egy 10-es alapú logaritmikus skálán a jelölések 1, 10, 100, 1000 stb. lehetnek.\par\medskip
+				Logaritmikus skálát egy plotly diagramon a \texttt{log\_x} paraméter bekapcsolásával lehet létrehozni. 
+			\end{column}
+			\begin{column}{.5\textwidth}
+				\begin{center}
+					\includegraphics[width=7cm, height=7cm, keepaspectratio]{images/scatter_15.png}
+				\end{center}
+				\end{column}
+		\end{columns}
+	\end{frame}
+
+	\begin{frame}[fragile]{Dash csúszkák}
+		A \texttt{Slider} és \texttt{RangeSlider} komponensek körök, amelyeket a felhasználók húzhatnak egy érték beállításához, és folyamatos vagy kategorikus értékekhez is használhatók.\par\medskip
+		A \texttt{Slider} egyetlen értéket állít, míg a \texttt{RangeSlider} komponensen két csúszka szerepel, és az ezek által határolt tartományt adja meg. 
+		\begin{columns}
+			\begin{column}{.5\textwidth}
+				\begin{lstlisting}[language=python]
+app = dash.Dash(__name__)
+app.layout = html.Div([
+	dcc.Slider(
+		id='slider',
+		min=0,
+		max=20
+	)
+])
+app.run_server(mode='inline')				
+				\end{lstlisting}
+			\end{column}
+			\begin{column}{.5\textwidth}
+				\begin{center}
+					\includegraphics[width=4cm, height=7cm, keepaspectratio]{images/scatter_16.png}
+				\end{center}
+			\end{column}
+		\end{columns}
+	\end{frame}
+	
+	\begin{frame}[fragile]{\texttt{Slider} komponensek paraméterei}
+		\begin{columns}
+			\begin{column}{.5\textwidth}
+				\begin{itemize}
+					\item \texttt{min}: A csúszka minimum értéke
+					\item \texttt{max}: A csúszka maximum értéke
+					\item \texttt{step}: A legkisebb állítható lépték
+					\item \texttt{dots}: Szerepeljenek-e markerek a csúszkán
+					\item \texttt{included}: Ha az értéke \texttt{False}, a markerek közötti értéket nem veheti fel a csúszka állapota
+					\item \texttt{marks}: Egy szótár, ahol a kulcsok a csúszka értékei, és az értékek azok a címkék, amelyek az adott értékeknél jelennek meg.
+				\end{itemize}
+			\end{column}
+			\begin{column}{.5\textwidth}
+				\begin{lstlisting}[language=python]
+dcc.Slider(
+	min=0,
+	max=10,
+	step=1,
+	dots=True,
+	included=False
+)				
+				\end{lstlisting}
+				\begin{center}
+					\includegraphics[width=5cm, height=5cm, keepaspectratio]{images/scatter_17.png}
+				\end{center}
+			\end{column}
+		\end{columns}
+	\end{frame}
+	
+	\begin{frame}[fragile]{Markerek testreszabása}
+		\begin{columns}
+			\begin{column}{.5\textwidth}
+				A \texttt{marks} paraméter egy szótárat fogad, aminek a kulcsa a címke, és a hozzá tartozó érték egy másik szótár, amiben a címkéhez tartozó tulajdonságok vannak megadva.
+				\begin{lstlisting}[language=python]
+marks={
+	0: {'label': '$1.9', 'style': {'color': cividis0, 'fontWeight': 'bold'}},
+	1: {'label': '$3.2', 'style': {'color': cividis0, 'fontWeight': 'bold'}},
+	2: {'label': '$5.5', 'style': {'color': cividis0, 'fontWeight': 'bold'}},
+}				
+				\end{lstlisting}
+			\end{column}
+			\begin{column}{.5\textwidth}
+				\begin{center}
+					\includegraphics[width=5cm, height=5cm, keepaspectratio]{images/scatter_18.png}
+				\end{center}
+			\end{column}
+		\end{columns}
+	\end{frame}
+	
+	\begin{frame}{Alkalmazás csúszkákkal (\texttt{app\_v3\_1.py})}
+		\begin{columns}
+			\begin{column}{.5\textwidth}
+				Az alkalmazás következő iterációjában két csúszka került hozzáadásra, az egyikkel a szegénységi szintet, a másikkal pedig az évet lehetséges kiválasztani.\par\medskip
+				A hozzá tartozó callback függvény a csúszkák állapotának változásának hatására elindul, és leszűri a megfelelő adatkészletet. Az adatkészletből egy plotly diagramot állít elő és téríti vissza a megfelelő \texttt{Output} attribútumba.\par\medskip
+				A teljes alkalmazásba való beépítést az \texttt{app\_v3\_2.py} valósítja meg.
+			\end{column}
+			\begin{column}{.5\textwidth}
+				\begin{center}
+					\includegraphics[width=7cm, height=5cm]{images/scatter_19.png}
+				\end{center}		
+			\end{column}
+		\end{columns}
+	\end{frame}
+	
+	\begin{frame}{Csúszkák beépítése az alkalmazásba (\texttt{app\_v3\_2.py})}
+		\begin{center}
+			\includegraphics[width=7cm, height=7cm, keepaspectratio]{images/scatter_34.png}
+		\end{center}
+	\end{frame}
+	
+	\begin{frame}[fragile]{Egyszerű tematikus térkép}
+		\begin{columns}
+			\begin{column}{.5\textwidth}
+				Egy tematikus térképhez szükség van egy érték oszlopra, és egy országkód oszlopra a rendelkezésre álló adatkészletben.\par\smallskip
+				Az országkódokat általában ISO 3166-1 alpha-3 formátumban használja, ami hárombetűs kódokat jelent (pl. Magyarország esetében "HUN").\par\smallskip
+				\begin{lstlisting}[language=python]
+fig = px.choropleth(df, locations="Country Code", color=indicator)				
+				\end{lstlisting}
+			\end{column}
+			\begin{column}{.5\textwidth}
+				\begin{center}
+					\includegraphics[width=7cm, height=7cm, keepaspectratio]{images/scatter_20.png}
+				\end{center}
+			\end{column}
+		\end{columns}
+	\end{frame}
+	
+	\begin{frame}[fragile]{Animációs réteg tematikus térképekkel}
+		\begin{columns}
+			\begin{column}{.5\textwidth}
+				Az \texttt{animation\_frame} paraméterrel lehetséges bevezetni egy új, interaktív réteget adó komponenst, ami a választott változó alapján képes szekvenciálisan változtatni a megjelenített diagramot.\par\medskip
+				\begin{lstlisting}[language=python]
+fig = px.choropleth(
+	poverty[poverty['is_country']],
+	color_continuous_scale='cividis',
+	locations='Country Code',
+	color=indicator,
+	animation_frame='year'
+)				
+				\end{lstlisting}
+			\end{column}
+			\begin{column}{.5\textwidth}
+				\begin{center}
+					\includegraphics[width=7cm, height=7cm, keepaspectratio]{images/scatter_21.png}
+				\end{center}
+			\end{column}
+		\end{columns}
+	\end{frame}
+	
+	\begin{frame}{Fontosabb paraméterek tematikus térképekkel}
+		\begin{columns}
+			\begin{column}{.5\textwidth}
+				\begin{itemize}
+					\item \texttt{fig.layout.geo.showframe}: Eltünteti a keretet a térképdobozról
+					\item \texttt{fig.layout.geo.showcountries}: Mutatja az országok keretezővonalait
+					\item \texttt{fig.layout.geo.projection.type}: Térkép projekció állítása
+					\item \texttt{fig.layout.geo.landcolor}: A föld színének állítása
+					\item \texttt{fig.layout.geo.bgcolor}: Háttérszín a térképen
+					\item \texttt{fig.layout.paper\_bgcolor}: Háttérszín a kereteződobozban
+				\end{itemize}
+			\end{column}
+			\begin{column}{.5\textwidth}
+				\begin{center}
+					\includegraphics[width=7cm, height=7cm, keepaspectratio]{images/scatter_22.png}
+				\end{center}
+			\end{column}
+		\end{columns}
+	\end{frame}
+	
+	\begin{frame}[fragile]{Callback függvények térképekkel}
+		\begin{columns}
+			\begin{column}{.5\textwidth}
+				\begin{enumerate}
+					\item Új \texttt{DropDown} komponens létrehozása:
+					\begin{lstlisting}[language=python]
+	dcc.Dropdown(
+		id='indicator_dropdown',
+		value='GINI index (World Bank estimate)',
+		options=[{'label': indicator, 'value': indicator} for indicator in poverty.columns[3:54]]
+	)
+					\end{lstlisting}
+					\item \texttt{Graph} komponens létrehozása a térképnek: 
+					\begin{lstlisting}[language=python]
+	dcc.Graph(id='indicator_map_chart')
+					\end{lstlisting}
+				\end{enumerate}
+			\end{column}
+			\begin{column}{.5\textwidth}
+				\begin{enumerate}
+					\setcounter{enumi}{2}
+					\item Callback függvény létrehozása
+					\begin{lstlisting}[language=python]
+@app.callback(
+	Output('indicator_map_chart', 'figure'),
+	Input('indicator_dropdown', 'value'))
+def display_generic_map_chart(indicator):
+	df = poverty[poverty['is_country']]
+	fig = px.choropleth(
+		df,
+		locations='Country Code',
+		color=indicator,
+		...
+	)
+	fig.layout.geo.showframe = False
+	...
+	return fig
+					\end{lstlisting}
+				\end{enumerate}
+			\end{column}
+		\end{columns}
+	\end{frame}
+	
+	\begin{frame}[fragile]{Alkalmazás legördülő menüvel és tematikus térképpel (\texttt{map\_app\_v1.py})}
+		\begin{columns}
+			\begin{column}{.5\textwidth}
+				Az alkalmazás működésének megfelelően a felhasználó kiválaszthat egy indikátort a \texttt{Dropdown} menüből, ez elindít egy callback függvényt, aminek átadódik az indikátor értéke.\par\smallskip
+				A legördülő menü állapotát felhasználva a callback függvény renderel egy tematikus térképet, és felülírja a \texttt{Graph} komponens \texttt{figure} attribútumát.
+			\end{column}
+			\begin{column}{.5\textwidth}
+				\begin{center}
+					\includegraphics[width=7cm, height=7cm, keepaspectratio]{images/scatter_23.png}
+				\end{center}
+			\end{column}
+		\end{columns}
+	\end{frame}
+	
+	\begin{frame}[fragile]{\texttt{dcc.Store} komponensek}
+		\begin{columns}
+			\begin{column}{.5\textwidth}
+				\only<1>{
+					A tároló komponenseket arra lehet használni, hogy a kliens oldalon tároljon el adatot anélkül, hogy azt visszaküldené a szervernek.\par\smallskip
+					Dash alkalmazásokban a \texttt{dcc.Store} komponensek tartalmát callback függvények segítségével lehet manipulálni.
+				}
+				\only<2>{
+					A \texttt{Store} komponenseknek 3 típusa létezik:
+					\begin{itemize}
+						\item \texttt{memory}: Az adat a böngésző memóriájában tárolódik, és törlődik, amikor az oldalt frissíti a felhasználó
+						\item \texttt{local}: Az adat a böngésző helyi tárhelyén tárolódik el, és frissítés után nem törlődik
+						\item \texttt{session}: Az adat a böngésző munkamenete során marad meg, és akkor törlődik, amikor a felhasználó bezárja a megfelelő lapot
+					\end{itemize}
+				}
+			\end{column}
+			\begin{column}{.5\textwidth}
+				\begin{lstlisting}[language=python]
+app.layout = html.Div([
+	dcc.Store(id='store', storage_type='session'),
+])	
+
+@app.callback(
+	Output('my-store', 'data'),
+	Input('save-button', 'n_clicks')
+)
+def save_data(n_clicks):
+if n_clicks:
+	return {'key': 'value'}
+return dash.no_update							
+				\end{lstlisting}
+			\end{column}
+		\end{columns}
+	\end{frame}
+	
+	\begin{frame}[fragile]{\texttt{dcc.Interval} komponensek}
+		\begin{columns}
+			\begin{column}{.5\textwidth}
+				A \texttt{dcc.Interval} komponenseket arra lehet használni, hogy egy adott callback függvényt elindítson az alkalmazás adott időközönként. Ilyen például adatkészletek, diagramok frissítése, vagy folyamatok állapotának ellenőrzése. Fontosabb paraméterei:
+				\begin{itemize}
+					\item \texttt{interval}: Az intervallum (ms) hossza, ami két callback indítás között eltelik
+					\item \texttt{n\_intervals}: Az eltelt intervallumok számát tartalmazó attribútum
+					\item \texttt{disabled}: Ha értéke \texttt{True}, a callback függvény nem indul el
+				\end{itemize}
+			\end{column}
+			\begin{column}{.5\textwidth}
+				\begin{lstlisting}[language=python]
+app.layout = html.Div([
+	dcc.Interval(
+		id='interval-component', 
+		interval=1 * 1000,
+		n_intervals=0,
+	),
+])
+
+@app.callback(
+	Output('output', 'children'),
+	Input('interval-component', 'n_intervals')
+)
+def update_output(n):
+	return f'Interval has triggered {n} times.'				
+				\end{lstlisting}
+			\end{column}
+		\end{columns}
+	\end{frame}
+	
+	\begin{frame}{Alkalmazás \texttt{Storage} és \texttt{Interval} komponensekkel (\texttt{map\_app\_v2.py})}
+		\begin{columns}
+			\begin{column}{.6\textwidth}
+				\texttt{dcc.Storage}:
+				\begin{itemize}
+					\item A \texttt{store\_data} callback frissíti a \texttt{dcc.Store} komponens \texttt{data} attribútumát a Világbank adataival minden alkalommal, amikor a \texttt{dcc.Interval} komponens frissítést indít.
+				\end{itemize}
+				\texttt{dcc.Interval}:
+				\begin{itemize}
+					\item A \texttt{store\_data} callback minden alkalommal aktiválódik, amikor a \texttt{dcc.Interval} komponens növeli az \texttt{n\_intervals} attribútum értékét. Ez biztosítja, hogy a Világbank adatai minden percben frissüljenek és tárolódjanak a \texttt{dcc.Store} komponensben.
+				\end{itemize}
+			\end{column}
+			\begin{column}{.4\textwidth}
+				\begin{center}
+					\includegraphics[width=6cm, height=6cm, keepaspectratio]{images/scatter_24.png}
+				\end{center}
+			\end{column}
+		\end{columns}
+	\end{frame}
+	
+	\begin{frame}{Térkép projekciók}
+		\begin{columns}
+			\begin{column}{.5\textwidth}
+				\only<1>{
+					A térkép projekció egy matematikai módszer melynek feladata, hogy a Föld gömbölyű felületét egy síkra vetítse.\par\smallskip
+					A folyamat során szükségszerűen torzulások keletkeznek.				
+				}
+				\only<2-4>{
+					\begin{itemize}
+						\item \textbf{Equirectangular}: A legegyszerűbb projekció, ahol a földrajzi szélesség és hosszúság egyenesen arányosan van ábrázolva a síkon.
+						\item \textbf{Mercator}: Szögtartó, tehát a szögek és az irányok helyesek maradnak, így hasznos a navigációban.
+						\item \textbf{Orthographic}: Háromdimenziós gömböt ábrázol síkban úgy, mintha egy távoli pontból néznénk.
+						\item \textbf{Sinusoidal}: Ez az egyenlő területű projekció, amely megőrzi a területek arányait.
+					\end{itemize}
+				}
+			\end{column}
+			\begin{column}{.5\textwidth}
+				\begin{center}
+					\includegraphics<1>[width=7cm, height=7cm, keepaspectratio]{images/scatter_25}
+					\includegraphics<2>[width=7cm, height=7cm, keepaspectratio]{images/scatter_26}
+					\includegraphics<3>[width=7cm, height=7cm, keepaspectratio]{images/scatter_27}
+					\includegraphics<4>[width=7cm, height=7cm, keepaspectratio]{images/scatter_28}
+				\end{center}
+			\end{column}
+		\end{columns}
+	\end{frame}
+	
+	\begin{frame}[fragile]{Pontdiagramok térképekkel}
+		\begin{columns}
+			\begin{column}{.5\textwidth}
+				A plotly könyvtár alapértelmezetten támogatja az ISO-alpha3 országkódok pontos pozíciójának ábrázolását, ezért amikor paraméterül megkapja a \texttt{locations='Country Code'} értéket innen ki tudja olvasni az adott ország hosszúsági és szélességi koordinátáit.\par\smallskip
+				\begin{lstlisting}[language=python]
+df = poverty[poverty['year'].eq(2010) & poverty['is_country']]
+fig = px.scatter_geo(df, locations='Country Code')				
+				\end{lstlisting}
+			\end{column}
+			\begin{column}{.5\textwidth}
+				\begin{center}
+					\includegraphics[width=7cm, height=7cm, keepaspectratio]{images/scatter_29.png}
+				\end{center}
+			\end{column}
+		\end{columns}
+	\end{frame}
+	
+	\begin{frame}[fragile]{\texttt{Mapbox} térképek}
+		\begin{columns}
+			\begin{column}{.5\textwidth}
+				A \texttt{zoom} paraméter állításával lehetséges ráközelíteni a diagramra, a \texttt{center} paraméter a közelítés központját adja meg, és a \texttt{mapbox\_style} pedig a térképstílust.\par\medskip
+				\begin{lstlisting}[language=python]
+px.scatter_mapbox(
+	lon=[5, 10, 15, 20],
+	lat=[10, 7, 18, 5],
+	zoom=2,
+	center={'lon': 5, 'lat': 10},
+	size=[5]*4,
+	color_discrete_sequence=['darkred'],
+	mapbox_style='stamen-watercolor'
+)				
+				\end{lstlisting}
+			\end{column}
+			\begin{column}{.5\textwidth}
+				\begin{center}
+					\includegraphics[width=7cm, height=7cm, keepaspectratio]{images/scatter_30.png}
+				\end{center}
+			\end{column}
+		\end{columns}
+	\end{frame}
+
+	\lstset{
+		basicstyle=\color{black}\ttfamily\scriptsize,
+		keywordstyle=\color{black},
+		commentstyle=\color{black},	
+		stringstyle=\color{black},
+		identifierstyle=\color{black},
+		numberstyle=\color{black},	
+	}
+	
+	\begin{frame}[fragile]{Markdown alapjai}
+		A Markdown nyelv segítségével egyszerűen lehet HTML struktúrát létrehozni. Az outputot úgy jeleníti meg, mint bármelyik HTML dokumentum, de a megírása sokkal egyszerűbb.
+		\begin{columns}
+			\begin{column}{.5\textwidth}
+				\begin{block}{HTML}
+					\begin{center}
+						\begin{minipage}{.8\textwidth}
+							\begin{lstlisting}[language=bash]
+<h1>Főcím</h1>
+<h2>Alcím</h2>
+<ul>
+	<li>Első elem</li>
+	<li>Második elem</li>
+	<li>Harmadik elem</li>
+</ul>					
+							\end{lstlisting}	
+						\end{minipage}
+					\end{center}
+				\end{block}
+			\end{column}
+			\begin{column}{.5\textwidth}
+				\begin{block}{Markdown}
+					\begin{center}
+						\begin{minipage}{.8\textwidth}
+							\begin{lstlisting}
+# Főcím
+## Alcím
+* Első elem
+* Második elem
+* Harmadik elem
+							\end{lstlisting}
+						\end{minipage}
+					\end{center}
+				\end{block}			
+			\end{column}
+		\end{columns}
+	\end{frame}
+	
+	\begin{frame}[fragile]{Markdown szabályai}
+		\begin{columns}
+			\begin{column}{.5\textwidth}
+				\begin{itemize}
+					\item Főcímek:
+					\begin{lstlisting}[language=python]
+# Első főcím
+## Második főcím
+### Harmadik főcím
+					\end{lstlisting}
+					\item Formázások:
+					\begin{lstlisting}[language=python]
+*Dőlt*
+**Félkövér**
+***Félkövér és dőlt***
+					\end{lstlisting}
+					\item Linkek:
+					\begin{lstlisting}[language=python]
+[Link szöveg](URL)
+					\end{lstlisting}
+					\item Képek:
+					\begin{lstlisting}[language=python]
+![Alternatív szöveg](Elérési út)
+					\end{lstlisting}
+				\end{itemize}
+			\end{column}
+			\begin{column}{.5\textwidth}
+				\begin{itemize}
+					\item Számozatlan lista:
+					\begin{lstlisting}[language=python]
+* Első elem
+* Második elem
+					\end{lstlisting}
+					\item Számozott lista: 
+					\begin{lstlisting}[language=python]
+1. Első elem
+2. Második elem
+					\end{lstlisting}
+					\item Programkód:
+					\begin{lstlisting}[language=python]
+`print(Hello, World!)`
+					\end{lstlisting}
+					\item Táblázat:
+					\begin{lstlisting}[language=python]
+| Főcím 1 | Főcím 2 |
+|---------|---------|
+| Sor 1   | Adat    |
+					\end{lstlisting}
+				\end{itemize}
+			\end{column}
+		\end{columns}
+	\end{frame}
+	
+	\lstset{
+		language=python,
+		basicstyle=\ttfamily\scriptsize, % Basic font style
+		keywordstyle=\bfseries\color{blue}, % Keywords in bold and blue
+		stringstyle=\color{red}, % Strings in red
+		commentstyle=\color{green!50!black}, % Comments in green
+		showstringspaces=false, % Do not show spaces in strings
+		numbers=left, % Line numbers on the left
+		numberstyle=\tiny\color{gray}, % Line number style
+		stepnumber=1, % Line number step
+		numbersep=5pt, % Distance of line numbers from code
+		frame=single, % Frame around the code
+		rulecolor=\color{black}, % Frame color
+		tabsize=2, % Tab size
+		breaklines=true, % Automatic line breaking
+		breakatwhitespace=false, % Break lines at whitespace
+		captionpos=b, % Caption position
+		escapeinside={\%*}{*)}, % Escape to LaTeX
+		morekeywords={self}, % Additional keywords
+		literate={á}{{\'a}}1
+		{é}{{\'e}}1
+		{í}{{\'i}}1
+		{ó}{{\'o}}1
+		{ú}{{\'u}}1
+		{ő}{{\H{o}}}1
+		{ű}{{\H{u}}}1
+		{Á}{{\'A}}1
+		{É}{{\'E}}1
+		{Í}{{\'I}}1	
+		{Ó}{{\'O}}1	
+		{Ú}{{\'U}}1
+		{Ő}{{\H{O}}}1
+		{Ű}{{\H{U}}}1
+		{Ö}{{\"O}}1
+		{Ü}{{\"U}}1
+		{ö}{{\"o}}1
+		{ü}{{\"u}}1
+	}
+	
+	\begin{frame}[fragile]{\texttt{dcc.Markdown} komponensek frissítése callback függvénnyel}
+		\begin{columns}
+			\begin{column}{.5\textwidth}
+				Dash keretrendszer alatt \texttt{dcc.Markdown} komponenseket lehetséges definiálni. Ezeket callback függvények segítségével dinamikusan lehet frissíteni.\par\smallskip
+				Markdown komponens létrehozása:
+				\begin{lstlisting}[language=python]
+dcc.Markdown(
+	id='indicator_map_details_md',
+	style={'backgroundColor': '#E5ECF6'})				
+				\end{lstlisting}
+				Callback dekorátor:
+				\begin{lstlisting}[language=python]
+@app.callback(
+	Output('indicator_map_chart', 'figure'),
+	Output('indicator_map_details_md', 'children'),
+	Input('indicator_dropdown', 'value'))
+				\end{lstlisting}
+			\end{column}
+			\begin{column}{.5\textwidth}
+				\begin{lstlisting}[language=python]
+def update(indicator):
+	...
+	markdown = f"""
+	---
+	## {series_df['Indicator Name'].values[0]}
+	{series_df['Long definition'].values[0]}
+	* **Mértékegység:** {series_df['Unit of measure'].fillna('count').values[0]}
+	* **Periodicitás:** {series_df['Periodicity'].fillna('N/A').values[0]}
+	* **Forrás:** {series_df['Source'].values[0]}
+	### Limitációk és kivételek: 
+	{limitations}
+	"""
+	return markdown				
+				\end{lstlisting}
+			\end{column}
+		\end{columns}
+	\end{frame}
+	
+	\begin{frame}{\texttt{Markdown} komponens beépítése a térkép alkalmazásba (\texttt{map\_app\_v3.py})}
+		\begin{columns}
+			\begin{column}{.5\textwidth}
+				Egy legördülő menü segítségével választható az indikátor neve. Az állapot változása elindít egy callback függvényt, ami kiolvassa az indikátornak megfelelő információt egy adatfájlból.\par\medskip
+				A kiolvasott tartalmat az alkalmazás Markdown formátumban jeleníti meg.
+			\end{column}
+			\begin{column}{.5\textwidth}
+				\begin{center}
+					\includegraphics[width=7cm, height=7cm, keepaspectratio]{images/scatter_33.png}
+				\end{center}
+			\end{column}
+		\end{columns}
+	\end{frame}
+	
+	\begin{frame}{Alkalmazás térképpel és \texttt{Markdown} komponenssel (\texttt{app\_v3\_3.py})}
+		\begin{center}
+			\includegraphics[width=10cm, height=7cm, keepaspectratio]{images/scatter_32.png}
+		\end{center}
+	\end{frame}
+
+	\section{Gyakorisági adatok}
+	
+	\begin{frame}
+	\tableofcontents[currentsection]
+	\end{frame}
+
+	\begin{frame}[fragile]{Hisztogramok létrehozása}
+		\begin{columns}
+			\begin{column}{.5\textwidth}
+				\begin{block}{Hisztogram}
+					A hisztogram egy statisztikai grafikon, amely az adatok eloszlását mutatja be. Oszlopdiagram formájában ábrázolja, hogy az adatok milyen gyakorisággal fordulnak elő különböző intervallumokban.
+				\end{block}
+				\medskip
+				Hisztogram létrehozása plotly segítségével:
+				\begin{lstlisting}[language=python]
+px.histogram(data_frame=df, x=gini)
+				\end{lstlisting}
+			\end{column}
+			\begin{column}{.5\textwidth}
+				\begin{center}
+					\includegraphics[width=7cm, height=7cm, keepaspectratio]{images/freq_1.png}
+				\end{center}
+			\end{column}
+		\end{columns}
+	\end{frame}
+	
+	\begin{frame}[fragile]{Hisztogramok felbontása}
+		\begin{columns}
+			\begin{column}{.5\textwidth}
+				\begin{block}{Osztályköz}
+					Az osztályközök határozzák meg, hogy az adatok milyen tartományokba kerülnek, és ezek az intervallumok határozzák meg a hisztogram oszlopainak szélességét.
+				\end{block}
+				\medskip
+				Az osztályközök száma az \texttt{nbins} paraméter segítségével állítható. 
+				\begin{lstlisting}[language=python]
+for n in [2, 45, 500]:
+	px.histogram(data_frame=df, x=gini, nbins=n)
+				\end{lstlisting}
+			\end{column}
+			\begin{column}{.5\textwidth}
+				\begin{center}
+					\includegraphics<1>[width=7cm, height=7cm, keepaspectratio]{images/freq_2.png}
+					\includegraphics<2>[width=7cm, height=7cm, keepaspectratio]{images/freq_3.png}
+					\includegraphics<3>[width=7cm, height=7cm, keepaspectratio]{images/freq_4.png}
+				\end{center}
+			\end{column}
+		\end{columns}
+	\end{frame}
+	
+	\begin{frame}[fragile]{Hisztogram hasítása színekkel}
+		\begin{columns}
+			\begin{column}{.5\textwidth}
+				Plotly express diagramokat lehetséges változón belüli csoportonként meghasítani. Ennek eléréséhez a \texttt{color} paramétert kell a megfelelő változóra állítani.\par\medskip
+				\begin{lstlisting}[language=python]
+px.histogram(data_frame=df, x=gini, color='Income Group', color_discrete_sequence=px.colors.qualitative.Set1)
+				\end{lstlisting}
+			\end{column}
+			\begin{column}{.5\textwidth}
+				\begin{center}
+					\includegraphics[width=7cm, height=7cm, keepaspectratio]{images/freq_5.png}
+				\end{center}
+			\end{column}
+		\end{columns}
+	\end{frame}
+	
+	\begin{frame}[fragile]{Csoportosított hisztogramok}
+		\begin{columns}
+			\begin{column}{.5\textwidth}
+				Vannak olyan esetek, amikor egy változónak több csoportját egymás mellett szükséges megmutatni. Ekkor a hisztogramokat lehetséges csoportosítani adott értékek szerint, a \texttt{color} és a \texttt{barmode='group'} paraméterek állításával.\par\medskip
+				\begin{lstlisting}[language=python]
+px.histogram(df, x=gini, color='year', barmode='group')
+				\end{lstlisting}
+			\end{column}
+			\begin{column}{.5\textwidth}
+				\begin{center}
+					\includegraphics[width=7cm, height=7cm, keepaspectratio]{images/freq_6.png}
+				\end{center}
+			\end{column}
+		\end{columns}
+	\end{frame}
+	
+	\begin{frame}[fragile]{Hasított hisztogramok}
+		\begin{columns}
+			\begin{column}{.5\textwidth}
+				A diagramok hasítása adott változó értékei szerint lehetséges úgy is, hogy minden, a változóhoz tartozó értékre szűrt adathalmaz egy külön diagramon jelenik meg, a \texttt{facet\_col} paraméter állításával.\par\medskip
+				\begin{lstlisting}[language=python]
+px.histogram(df, x=gini, color='year', facet_col='year')
+				\end{lstlisting}
+			\end{column}
+			\begin{column}{.5\textwidth}
+				\begin{center}
+					\includegraphics[width=7cm, height=7cm, keepaspectratio]{images/freq_7.png}
+				\end{center}
+			\end{column}
+		\end{columns}
+	\end{frame}
+	
+	\begin{frame}[fragile]{Hisztogramok normalizálása}
+		\begin{columns}
+			\begin{column}{.5\textwidth}
+				\begin{block}{Normalizált hisztogram}
+					Olyan grafikon, ahol az egyes oszlopok az adott intervallumba eső adatok gyakoriságát jelzi olyan módon, hogy az oszlopok összege 1 legyen. 
+				\end{block}
+				\begin{lstlisting}[language=python]
+fig = px.histogram(df, x=gini, color='year', facet_col='year')
+fig.layout.yaxis.ticksuffix = '%'
+fig.layout.yaxis.title = 'Százalékos gyakoriság'
+fig.show()
+				\end{lstlisting}
+			\end{column}
+			\begin{column}{.5\textwidth}
+				\begin{center}
+					\includegraphics[width=7cm, height=7cm, keepaspectratio]{images/freq_8.png}
+				\end{center}
+			\end{column}
+		\end{columns}
+	\end{frame}
+	
+	\begin{frame}[fragile]{Hisztogramok több dimenzióban}
+		\begin{columns}
+			\begin{column}{.5\textwidth}
+				\begin{block}{2D hisztogram}
+					Két dimenzióban osztja fel az adatokat, és minden cella (osztályköz) azt mutatja meg, hogy hány adatpont esik az adott tartományba mindkét változó esetében. 
+				\end{block}
+				\begin{lstlisting}[language=python]
+fig = go.Figure()
+fig.add_histogram2d(
+	x=df['Income share held by fourth 20%'],
+	y=df['GINI index (World Bank estimate)'],
+	colorscale='cividis'
+)
+				\end{lstlisting}
+			\end{column}
+			\begin{column}{.5\textwidth}
+				\begin{center}
+					\includegraphics[width=7cm, height=7cm, keepaspectratio]{images/freq_11.png}
+				\end{center}
+			\end{column}
+		\end{columns}
+	\end{frame}
+	
+	\begin{frame}{Alkalmazás interaktív hisztogramokkal (\texttt{freq\_app\_v1.py})}
+		\begin{columns}
+			\begin{column}{.5\textwidth}
+				A callback függvények a felhasználói interakciók alapján frissítik a grafikonokat. A \texttt{display\_histogram} függvény három bemeneti elemet figyel \texttt{(years, indicator, bins)}, és ezek alapján frissíti a hisztogram ábrát.\par\medskip
+				Ha nincs kiválasztott év vagy indikátor, a függvény nem frissíti az ábrát (\texttt{PreventUpdate}). Az adatok szűrése után a Plotly Express segítségével készül el a hisztogram.
+			\end{column}
+			\begin{column}{.5\textwidth}
+				\begin{center}
+					\includegraphics[width=7cm, height=7cm, keepaspectratio]{images/freq_9.png}
+				\end{center}
+			\end{column}
+		\end{columns}
+	\end{frame}
+	
+	\begin{frame}{Interaktív hisztogramok beépítése az alkalmazásba (\texttt{app\_v4\_1.py})}
+		\begin{center}
+			\includegraphics[width=7cm, height=7cm, keepaspectratio]{images/freq_10.png}
+		\end{center}
+	\end{frame}
+	
+	\begin{frame}[fragile]{Adattábla létrehozása}
+		\begin{columns}
+			\begin{column}{.5\textwidth}
+				A Dash keretrendszerben interaktív táblázatokat a \texttt{dash\_table} könyvtárral lehet létrehozni.\par\medskip
+				\begin{lstlisting}[language=python]
+from dash import html, dash_table
+
+app.layout = html.Div([
+	...
+	dash_table.DataTable(
+		data=pov_df.to_dict('records'),
+		columns=[{'name': col, 'id': col} for col in pov_df.columns]
+	)
+	...
+])
+	
+				\end{lstlisting}
+			\end{column}
+			\begin{column}{.5\textwidth}
+				\begin{center}
+					\includegraphics[width=7cm, height=7cm, keepaspectratio]{images/freq_12.png}
+				\end{center}
+			\end{column}
+		\end{columns}
+	\end{frame}
+	
+	\begin{frame}[fragile]{Adattábla személyre szabása}
+		\begin{columns}
+			\begin{column}{.5\textwidth}
+				\begin{lstlisting}[language=python]
+dash_table.DataTable(
+	data=pov_df.to_dict('records'),
+	columns=[{'name': col, 'id': col} for col in pov_df.columns],
+	style_header={'whiteSpace': 'normal'},
+	fixed_rows={'headers': True},
+	style_table={'height': '400px'},
+	virtualization=True,   
+)
+				\end{lstlisting}
+			\end{column}
+			\begin{column}{.5\textwidth}
+				\begin{center}
+					\includegraphics[width=7cm, height=7cm, keepaspectratio]{images/freq_13.png}
+				\end{center}
+			\end{column}
+		\end{columns}
+	\end{frame}
+	
+	\begin{frame}{$K$-közép klaszterezés}
+		\begin{columns}
+			\begin{column}{.5\textwidth}
+				Az algoritmus eljárása:
+				\begin{enumerate}
+					\item $K$ számú klaszter centroid inicializálása véletlenszerűen: $\mu_1, \mu_2, \ldots, \mu_K$
+					\item Minden $x_i$ adatpont a hozzá legközelebb eső klaszterhez rendelése az euklideszi távolságot használva: $c_i = \arg\min_{j} \left\| x_i - \mu_j \right\|^2$
+					\item Klaszterközéppontok újraszámítása úgy, hogy az adott klaszterhez tartozó pontok várható értékét tükrözzék: $\mu_j = \frac{1}{|C_j|} \sum_{x_i \in C_j} x_i$
+					\item Ismétlés a kilépési kritériumig
+				\end{enumerate}
+			\end{column}
+			\begin{column}{.5\textwidth}
+				\begin{center}
+					\includegraphics[width=7cm, height=7cm, keepaspectratio]{images/freq_14.png}
+				\end{center}
+			\end{column}
+		\end{columns}
+	\end{frame}
+	
+	\begin{frame}[fragile]{Optimális klaszterszám megtalálása}
+		Egy klaszter konfiguráció annál jobb, minél szorosabban helyezkednek el az egy klaszterben lévő egyedek, és minél jobban elkülönülnek a más klaszterben lévő egyedektől. Ezt tükrözi a sziluett együttható:
+		\begin{columns}
+			\begin{column}{.5\textwidth}
+				\begin{block}{Sziluett}
+					\[
+					S(x) \in \left[ -1, 1 \right]= \frac{a(x) - b(x)}{max\{ a(x), b(x)\}}
+					\]
+					Ahol:
+					\begin{itemize}
+						\item $a(x)$: $x$ mintaegyed és minden vele nem egy klaszterben lévő mintaegyed távolsága
+						\item $b(x)$: $x$ mintaegyed és minden vele egy klaszterben lévő mintaegyed távolsága
+					\end{itemize}
+				\end{block}
+			\end{column}
+			\begin{column}{.5\textwidth}
+				\begin{center}
+					\includegraphics[width=7cm, height=7cm, keepaspectratio]{images/freq_15.png}
+				\end{center}
+			\end{column}
+		\end{columns}
+	\end{frame}
+	
+	\begin{frame}[fragile]{\texttt{Scikit-learn} $K$-közép }
+		\begin{columns}
+			\begin{column}{.5\textwidth}
+				$K$-közép modul importálása és tanítása a \texttt{make\_blobs} adathalmazon:
+				\begin{lstlisting}[language=python]
+from sklearn.cluster import KMeans
+
+kmeans = KMeans(n_clusters=n_clusters, random_state=random_state)
+kmeans.fit(X)
+
+labels = kmeans.labels_
+centroids = kmeans.cluster_centers_
+				\end{lstlisting}
+			\end{column}
+			\begin{column}{.5\textwidth}
+				Klaszter centroidok $x$ és $y$ koordinátái:
+				\begin{lstlisting}[language=python]
+ In [1]: print(kmeans.cluster_centers_)
+Out [1]: [[-2.70981136  8.97143336]
+[-6.83235205 -6.83045748]
+[ 4.7182049   2.04179676]
+[-8.87357218  7.17458342]]
+				\end{lstlisting}
+				\par\medskip
+				Becsült címkék az adathalmaz első 10 elemére:
+				\begin{lstlisting}[language=python]
+ In [2]: print(kmeans.labels_)
+Out [2]: [3 3 0 1 3 1 2 1 0 2]
+				\end{lstlisting}
+			\end{column}
+		\end{columns}
+	\end{frame}
+	
+	\begin{frame}[fragile]{Országok klaszterezése}
+		A következő program az országokat 5 klaszterbe sorolja be, majd ennek a kimenetét felhasználva hoz létre egy tematikus térképet:\par\smallskip
+		\begin{columns}
+			\begin{column}{.5\textwidth}
+				\begin{lstlisting}[language=python]
+year = 2018
+indicators = ['Population, total']
+kmeans = KMeans(n_clusters=5)
+df = poverty[poverty['year'].eq(year) & poverty['is_country']]
+data = df[indicators].values
+kmeans.fit(data)
+
+fig = px.choropleth(
+	df,
+	locations='Country Name',
+	locationmode='country names',
+	color=[str(x) for x in kmeans.labels_]
+)	
+				\end{lstlisting}
+			\end{column}
+			\begin{column}{.5\textwidth}
+				\begin{center}
+					\includegraphics[width=7cm, height=7cm, keepaspectratio]{images/freq_16.png}
+				\end{center}
+			\end{column}
+		\end{columns}
+	\end{frame}
+	
+	\begin{frame}[fragile]{Hiányzó értékek kezelése}
+		\begin{columns}
+			\begin{column}{.5\textwidth}
+				Az \texttt{sklearn.impute.SimpleImputer} lehetővé teszi a hiányzó értékek pótlását különböző stratégiák alkalmazásával. Néhány gyakori stratégia:
+				\begin{itemize}
+					\item \texttt{mean} (átlag): A hiányzó értékeket az adott oszlop átlagával helyettesíti
+					\item \texttt{median} (medián): A hiányzó értékeket az adott oszlop mediánjával helyettesíti
+					\item \texttt{most\_frequent} (leggyakoribb): A hiányzó értékeket az adott oszlop leggyakoribb értékével
+					\item \texttt{constant} (állandó): Egy megadott állandó értékkel helyettesíti a hiányzó értékeket.
+				\end{itemize}			
+			\end{column}
+			\begin{column}{.5\textwidth}
+				\texttt{SimpleImputer}  használata:
+				\begin{lstlisting}[language=python]
+from sklearn.impute import SimpleImputer
+
+data = np.array([1, 2, 1, 2, np.nan]).reshape(-1, 1)
+imp = SimpleImputer(strategy='mean')
+imp.fit(data)
+
+print(imp.transform(data))
+				\end{lstlisting}
+				\begin{lstlisting}[language=python]
+[[1. ]
+[2. ]
+[1. ]
+[2. ]
+[1.5]]
+				\end{lstlisting}
+			\end{column}
+		\end{columns}
+	\end{frame}
+	
+	\begin{frame}[fragile]{Adatok méretezése}
+		\begin{columns}
+			\begin{column}{.5\textwidth}
+				\begin{lstlisting}[language=python]
+from sklearn.preprocessing import StandardScaler
+
+data = np.array([1, 2, 3, 4, 5]).reshape(-1, 1)
+
+scaler = StandardScaler()
+print(scaler.fit_transform(data))
+				\end{lstlisting}
+				\begin{lstlisting}[language=python]
+[[-1.41421356]
+[-0.70710678]
+[ 0.        ]
+[ 0.70710678]
+[ 1.41421356]]
+				\end{lstlisting}            
+			\end{column}
+			\begin{column}{.5\textwidth}
+				\begin{block}{Méretezés}
+					Adat előkészítési technika, mely során az adatok értékei egy adott tartományba transzformálódnak.
+				\end{block}
+				\begin{center}
+					\only<1>{\includegraphics[width=7cm, height=7cm, keepaspectratio]{images/freq_17.png}}
+					\only<2>{\includegraphics[width=7cm, height=7cm, keepaspectratio]{images/freq_18.png}}
+				\end{center}
+			\end{column}
+		\end{columns}
+	\end{frame}
+	
+	\begin{frame}{Alkalmazás interaktív térképpel, $K$-közép klaszterezéssel (\texttt{kmeans\_app.py})}
+		\begin{columns}
+			\begin{column}{.5\textwidth}
+				A callback függvény frissíti a térképet a kiválasztott év, klaszterszám és indikátor alapján.\par\smallskip
+				A hiányzó értékeket az átlaggal pótolja, majd az adatokat skálázza. A K-Közép algoritmust alkalmazza a transzformált adatokra, és a klaszterszámot a rendelkezésre álló adatok alapján korlátozza. Végül létrehozza a térképet, ahol az országokat a klaszter címkék alapján színezi, és finomhangolja a megjelenést.
+			\end{column}
+			\begin{column}{.5\textwidth}
+				\begin{center}
+					\includegraphics[width=7cm, height=7cm, keepaspectratio]{images/freq_19.png}
+				\end{center}
+			\end{column}
+		\end{columns}
+	\end{frame}
+	
+	\begin{frame}{$K$-közép beépítése a teljes alkalmazásba (\texttt{app\_v4\_2.py})}
+		\begin{center}
+			\includegraphics[width=7cm, height=7cm, keepaspectratio]{images/freq_20.png}
+		\end{center}
+	\end{frame}
+	
+	\begin{frame}[fragile]{Komponensek állapota}
+		\begin{columns}
+			\begin{column}{.5\textwidth}
+				Az \texttt{Output} és \texttt{Input} mellett a harmadik callback argumentum a \texttt{State}. 
+				\begin{itemize}
+					\item A sorrend a callback dekorátoron belül \texttt{[Input, Output, State]}.
+					\item Az \texttt{Input} komponens állapotának megváltoztatása elindítja a callback függvényt, a \texttt{State} nem. 
+					\item Ha egy \texttt{Input} elem módosul, a callback függvény \texttt{State} bemenő paraméterének értéke az lesz, amire az legutóbb módosult. 
+				\end{itemize}
+			\end{column}
+			\begin{column}{.5\textwidth}
+				\begin{lstlisting}[language=python]
+...
+html.Button('Futtatás', id='kmeans_button')
+...
+				\end{lstlisting}
+				\begin{lstlisting}[language=python]
+@app.callback(
+Output('clustered_map_chart', 'figure'),
+	Input('kmeans_button', 'n_clicks'),
+	State('year_cluster_slider', 'value'),
+	State('ncluster_slider', 'value'),
+	State('indicator_dropdown', 'value'),
+)
+def clustered_map(n_clicks, year, n_clusters, indicator):
+	if n	ot n_clicks:
+		return no_update
+	...
+				\end{lstlisting}
+			\end{column}
+		\end{columns}	
+	\end{frame}
+	
+	\begin{frame}[fragile]{Interaktív töltés indikátor}
+		\begin{columns}
+			\begin{column}{.5\textwidth}
+				A \texttt{dcc.Loading} képes visszajelzést adni egy felhasználónak, amíg a bele ágyazott komponens frissül.\par\smallskip
+				Egy diagram beágyazása \texttt{Loading} komponensbe:
+				\begin{lstlisting}[language=python]
+dcc.Loading([
+	dcc.Graph(
+		id='clustered_map_chart'
+	),
+])
+				\end{lstlisting}
+			\end{column}
+			\begin{column}{.5\textwidth}
+				\begin{center}
+					\includegraphics[width=3cm, height=3cm, keepaspectratio]{images/freq_21.png}
+				\end{center}
+			\end{column}
+		\end{columns}
+	\end{frame}
+	
+	
+	\begin{frame}[fragile]{$K$-közép alkalmazás állapottal}
+		\begin{columns}
+			\begin{column}{.5\textwidth}
+				Az alkalmazás funkcionalitásában megegyezik az előző verzióval, viszont ebben az esetben a callback függvény a Futtatás gombra kattintással indul el.\par\smallskip
+				A vezérlőelemek állapota \texttt{State} argumentumon keresztül adódik át a függvénynek, ezért nem indul el az elemek állapotának módosításakor. 
+			\end{column}
+			\begin{column}{.5\textwidth}
+				\begin{center}
+					\includegraphics[width=7cm, height=7cm, keepaspectratio]{images/freq_22.png}
+				\end{center}
+			\end{column}
+		\end{columns}
+	\end{frame}
+
+	\begin{frame}{Komponensvezérlő alkalmazás (\texttt{component\_app\_v1.py})}
+		\begin{columns}
+			\begin{column}{.5\textwidth}
+				\begin{itemize}
+					\item \textbf{Elrendezés}: Az alkalmazás HTML és Dash komponensekből épül fel, beleértve információs üzenetet, egy szövegmezőt, gombot, legördülő menüt és grafikont.
+					\item \textbf{Callback függvények:}
+					\begin{itemize}
+						\item \textbf{Legördülő menü frissítése}: A gomb megnyomására frissíti a legördülő menü opcióit a szövegmező tartalma alapján, és visszajelző üzenetet jelenít meg.
+						\item \textbf{Diagram frissítése}: A legördülő menü kiválasztott értéke alapján frissíti a népesség diagramot.
+					\end{itemize}
+				\end{itemize}
+			\end{column}
+			\begin{column}{.5\textwidth}
+				\begin{center}
+					\includegraphics[width=7cm, height=7cm, keepaspectratio]{images/freq_23.png}
+				\end{center}	
+			\end{column}
+		\end{columns}
+	\end{frame}
+	
+	\begin{frame}[fragile]{Információs üzenetek}
+		\begin{columns}
+			\begin{column}{.5\textwidth}
+				A \texttt{dbc.Alert} információs üzenetek megjelenítésére használhatunk a Dash alkalmazásokban:
+				\begin{itemize}
+					\item \texttt{primary}: Információ kék színnel
+					\item \texttt{danger}: Figyelmeztetés piros színnel
+					\item \texttt{success}: Siker zöld színnel
+				\end{itemize}
+				\par\medskip
+				\texttt{Div} definiálása az elrendezésben:
+				\begin{lstlisting}[language=python]
+app.layout = html.Div([
+	...
+	html.Div(id='component_feedback'),
+	...
+])
+				\end{lstlisting}
+			\end{column}
+			\begin{column}{.5\textwidth}
+				Callback függvény ami a \texttt{Div.children} attribútumot módosítja: 
+				\begin{lstlisting}[language=python]
+@app.callback(
+	Output('component_feedback', 'children')
+)
+def set_feedback():
+	return dbc.Alert(
+		f"Az opció hozzáadása sikeresen megtörtént: {','.join(text)}",
+		color='success',
+		dismissable=True,
+	)
+				\end{lstlisting}
+				\par\smallskip
+				\begin{center}
+					\includegraphics[width=7cm, height=7cm, keepaspectratio]{images/freq_25.png}
+				\end{center}
+			\end{column}
+		\end{columns}
+	\end{frame}
+	
+	\begin{frame}[fragile]{Elrendezés létrehozása}
+		\begin{columns}
+			\begin{column}{.5\textwidth}
+				\begin{enumerate}
+					\item \texttt{Div} létrehozása az üzenetnek:
+					\begin{lstlisting}[language=python]
+html.Div(id='component_feedback'),
+					\end{lstlisting}
+					\item \texttt{dcc.TextArea} szövegdoboz:
+					\begin{lstlisting}[language=python]
+dcc.Textarea(
+	id='component_text',
+	cols=40,
+	rows=5,
+	style={'width': '100%', 'height': 200},
+),
+					\end{lstlisting}
+				\end{enumerate}
+			\end{column}
+			\begin{column}{.5\textwidth}
+				\begin{enumerate}
+					\setcounter{enumi}{2}
+					\item Gomb, ami a callback függvényt indítja:
+					\begin{lstlisting}[language=python]
+dbc.Button('Beállítások mentése', id='component_button'),
+					\end{lstlisting}
+					\item Legördülő lista:
+					\begin{lstlisting}[language=python]
+dcc.Dropdown(id='component_dropdown'),
+					\end{lstlisting}
+					\item Grafikon:
+					\begin{lstlisting}[language=python]
+dcc.Graph(id='component_chart'),
+					\end{lstlisting}
+				\end{enumerate}
+			\end{column}
+		\end{columns}
+	\end{frame}
+	
+	\begin{frame}[fragile]{Legördülő menü frissítése}
+		\begin{columns}
+			\begin{column}{.4\textwidth}
+				A függvény a \texttt{component\_button} gomb megnyomására indul, és állapotként a szövegmező aktuális értékét fogadja.\par\smallskip
+				A szövegmező tartalmát a logika felbontja szóközök mentén különálló szavakra, majd egy sikeres visszajelző üzenettel tér vissza azáltal, hogy a \texttt{component\_feedback} \texttt{Div} állapotát változtatja meg.\par\smallskip
+				Az új opciókat egy listába rendezi, majd visszatér az új legördülő menü opciókkal és a diagrammal. 
+			\end{column}
+			\begin{column}{.6\textwidth}
+				\begin{lstlisting}[language=python]
+@app.callback(
+	Output('component_dropdown', 'options'),
+	Output('component_feedback', 'children'),
+	Input('component_button', 'n_clicks'),
+	State('component_text', 'value')
+)
+def set_dropdown_options(n_clicks, options):
+	if not n_clicks:
+		return no_update
+	text = options.split()
+	message = dbc.Alert(
+		f"Az opció hozzáadása sikeresen megtörtént: {','.join(text)}",
+		color='success',
+		dismissable=True
+	)
+	options = [{'label': t, 'value': t} for t in text]
+	return options, message
+				\end{lstlisting}
+			\end{column}
+		\end{columns}
+	\end{frame}
+	
+	\begin{frame}[fragile]{Diagram frissítése}
+		\begin{columns}
+			\begin{column}{.5\textwidth}
+				A függvény a \texttt{component\_chart}  legördülő menü kiválasztott értékét (\texttt{country\_code}) veszi bemenetként. Ha nincs kiválasztott érték a diagram nem frissül.\par\smallskip
+				A \texttt{poverty} adatkészlet szűrése után létrehoz egy vonaldiagramot, amely az adott ország népességének változását mutatja meg az évek során.
+			\end{column}
+			\begin{column}{.5\textwidth}
+				\begin{lstlisting}[language=python]
+@app.callback(
+	Output('component_chart', 'figure'),
+	Input('component_dropdown', 'value')
+)
+def create_population_chart(country_code):
+	if not country_code:
+		return no_update
+	# Adatkészlet szűrése
+	df = poverty[poverty['Country Code'] == country_code]
+	# Diagram létrehozása
+	return px.line(
+		df,
+		x='year',
+		y='Population, total',
+		title=f"Population of {country_code}"
+	)
+				\end{lstlisting}
+			\end{column}
+		\end{columns}
+	\end{frame}
+	
+	\begin{frame}{Az alkalmazás callback gráfja}
+		\begin{columns}
+			\begin{column}{.5\textwidth}
+				A callback gráf vizuálisan ábrázolja a különböző komponensek közötti kapcsolatokat, segít lekövetni felhasználói események sorozatait balról elindulva a nyilak mentén, és hogy melyik komponens melyik attribútuma indította el a folyamatot.\par\medskip 
+				Ez megkönnyíti a Dash alkalmazásokban való hibakeresést. 
+			\end{column}
+			\begin{column}{.5\textwidth}
+				\begin{center}
+					\includegraphics[width=7cm, height=7cm, keepaspectratio]{images/freq_24.png}
+				\end{center}
+			\end{column}
+		\end{columns}
+	\end{frame}
+
+
+\end{document}
