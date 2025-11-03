@@ -116,14 +116,14 @@ python app_v4_2.py
 
 ## Projekt Struktúra
 ```
-.
-├── app_v1_1.py - app_v4_2.py  # Alkalmazás verziók
-├── requirements.txt            # Python függőségek
-├── data/                       # Adatfájlok
-│   ├── PovStatsData.csv       # Szegénységi adatok
-│   ├── poverty.csv            # Részletes szegénységi adatok
-│   └── PovStatsSeries.csv     # Indikátor leírások
-└── images/                     # Képek és logók
+├── requirements.txt           # Python függőségek
+├── data/                      # Adatfájlok
+├── doc/                       # Dokumentáció és források
+│   ├── graphs/                # Generált grafikonok
+│   └── images/                # Képek és ábrák
+├── src/                       # Forráskód
+│   └── code/                  # Programfájlok
+└── tasks/                     # Feladatok és tesztek
 ```
 
 ## Használt Technológiák
